@@ -1,0 +1,118 @@
+{
+  "startedAt": "2026-06-13T21:30:27.211Z",
+  "finishedAt": "2026-06-13T21:35:02.601Z",
+  "elapsedMs": 275390,
+  "ok": true,
+  "completedSteps": 18,
+  "totalSteps": 18,
+  "steps": [
+    {
+      "label": "Build static web app",
+      "command": "npm run build",
+      "ok": true,
+      "elapsedMs": 1435
+    },
+    {
+      "label": "Verify REON fixture",
+      "command": "npm run verify:fixture",
+      "ok": true,
+      "elapsedMs": 10148
+    },
+    {
+      "label": "Verify v2 signing fixture",
+      "command": "npm run verify:v2-fixture",
+      "ok": true,
+      "elapsedMs": 14708
+    },
+    {
+      "label": "Verify v3 signing fixture",
+      "command": "npm run verify:v3-fixture",
+      "ok": true,
+      "elapsedMs": 16549
+    },
+    {
+      "label": "Verify v4 sidecar fixture",
+      "command": "npm run verify:v4-fixture",
+      "ok": true,
+      "elapsedMs": 17313
+    },
+    {
+      "label": "Verify ARSC unsupported guards",
+      "command": "npm run verify:arsc-guards",
+      "ok": true,
+      "elapsedMs": 439
+    },
+    {
+      "label": "Discover targeted corpus inventory",
+      "command": "npm run discover:corpus -- /Users/ahmadjalil/Downloads /Users/ahmadjalil/Desktop /Users/ahmadjalil/Documents /Users/ahmadjalil/github/AntiSplit-Web --report docs/targeted-corpus-inventory.md",
+      "ok": true,
+      "elapsedMs": 2929
+    },
+    {
+      "label": "Verify default corpus",
+      "command": "npm run verify:corpus -- --report docs/corpus-results.md",
+      "ok": true,
+      "elapsedMs": 39338
+    },
+    {
+      "label": "Verify v3 corpus",
+      "command": "npm run verify:v3-corpus",
+      "ok": true,
+      "elapsedMs": 27642
+    },
+    {
+      "label": "Verify v4 corpus",
+      "command": "npm run verify:v4-corpus",
+      "ok": true,
+      "elapsedMs": 35984
+    },
+    {
+      "label": "Verify manifest corpus",
+      "command": "npm run verify:corpus -- --manifest docs/local-corpus-manifest.txt --report docs/corpus-manifest-results.md",
+      "ok": true,
+      "elapsedMs": 40081
+    },
+    {
+      "label": "Verify standalone APK corpus",
+      "command": "npm run verify:standalone-corpus",
+      "ok": true,
+      "elapsedMs": 12344
+    },
+    {
+      "label": "Verify F-Droid APK corpus",
+      "command": "npm run verify:fdroid-corpus",
+      "ok": true,
+      "elapsedMs": 9177
+    },
+    {
+      "label": "Scan ARSC shapes",
+      "command": "npm run scan:arsc -- --manifest docs/local-corpus-manifest.txt --report docs/arsc-shape-report.md",
+      "ok": true,
+      "elapsedMs": 434
+    },
+    {
+      "label": "Verify local environment",
+      "command": "npm run verify:environment",
+      "ok": true,
+      "elapsedMs": 780
+    },
+    {
+      "label": "Compare Java vs web on REON",
+      "command": "npm run compare:java-web",
+      "ok": true,
+      "elapsedMs": 21593
+    },
+    {
+      "label": "Compare Java vs web on LibreLinkUp",
+      "command": "npm run compare:java-web -- /Users/ahmadjalil/Downloads/librelinkup/LibreLinkUp_5.0.1_APKPure.xapk",
+      "ok": true,
+      "elapsedMs": 24071
+    },
+    {
+      "label": "Audit completion evidence",
+      "command": "npm run audit:parity",
+      "ok": true,
+      "elapsedMs": 418
+    }
+  ]
+}

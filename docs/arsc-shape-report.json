@@ -1,0 +1,167 @@
+{
+  "generatedAt": "2026-06-13T21:34:15.723Z",
+  "summary": {
+    "passed": 2,
+    "total": 2
+  },
+  "results": [
+    {
+      "path": "/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+      "ok": true,
+      "apkCount": 4,
+      "baseApk": "jp.co.sony.reonpocket.apk",
+      "unsupported": [],
+      "warnings": [],
+      "apks": [
+        {
+          "name": "jp.co.sony.reonpocket.apk",
+          "role": "base",
+          "hasResources": true,
+          "packageCount": 1,
+          "typeStringCount": 20,
+          "typeIds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            19,
+            20
+          ],
+          "styledStringPoolCount": 0,
+          "warnings": [],
+          "unsupported": []
+        },
+        {
+          "name": "config.mdpi.apk",
+          "role": "split",
+          "hasResources": true,
+          "packageCount": 1,
+          "typeStringCount": 8,
+          "typeIds": [
+            8
+          ],
+          "styledStringPoolCount": 0,
+          "warnings": [],
+          "unsupported": []
+        },
+        {
+          "name": "config.en.apk",
+          "role": "split",
+          "hasResources": true,
+          "packageCount": 1,
+          "typeStringCount": 16,
+          "typeIds": [
+            16
+          ],
+          "styledStringPoolCount": 0,
+          "warnings": [],
+          "unsupported": []
+        },
+        {
+          "name": "config.armeabi_v7a.apk",
+          "role": "split",
+          "hasResources": false,
+          "packageCount": null,
+          "typeStringCount": null,
+          "typeIds": [],
+          "styledStringPoolCount": 0,
+          "warnings": [],
+          "unsupported": []
+        }
+      ]
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/librelinkup/LibreLinkUp_5.0.1_APKPure.xapk",
+      "ok": true,
+      "apkCount": 4,
+      "baseApk": "org.nativescript.LibreLinkUp.apk",
+      "unsupported": [],
+      "warnings": [],
+      "apks": [
+        {
+          "name": "config.arm64_v8a.apk",
+          "role": "split",
+          "hasResources": false,
+          "packageCount": null,
+          "typeStringCount": null,
+          "typeIds": [],
+          "styledStringPoolCount": 0,
+          "warnings": [],
+          "unsupported": []
+        },
+        {
+          "name": "org.nativescript.LibreLinkUp.apk",
+          "role": "base",
+          "hasResources": true,
+          "packageCount": 1,
+          "typeStringCount": 20,
+          "typeIds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            14,
+            15,
+            16,
+            17,
+            18,
+            20
+          ],
+          "styledStringPoolCount": 0,
+          "warnings": [],
+          "unsupported": []
+        },
+        {
+          "name": "config.en.apk",
+          "role": "split",
+          "hasResources": true,
+          "packageCount": 1,
+          "typeStringCount": 17,
+          "typeIds": [
+            15,
+            17
+          ],
+          "styledStringPoolCount": 0,
+          "warnings": [],
+          "unsupported": []
+        },
+        {
+          "name": "config.mdpi.apk",
+          "role": "split",
+          "hasResources": true,
+          "packageCount": 1,
+          "typeStringCount": 18,
+          "typeIds": [
+            7,
+            8,
+            18
+          ],
+          "styledStringPoolCount": 0,
+          "warnings": [],
+          "unsupported": []
+        }
+      ]
+    }
+  ]
+}

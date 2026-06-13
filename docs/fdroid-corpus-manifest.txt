@@ -1,0 +1,17 @@
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/org.vi_server.red_screen_3.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/fr.smarquis.sleeptimer_16000.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/io.github.ebraminio.bouncy_1.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/ir.ammari.nodelook_1.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/ademar.textlauncher_10.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/com.simonramstedt.yoke_4.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/net.basov.lws.qr.fdroid_50100.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/org.alberto97.aodtoggle_4.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/fr.smarquis.soundquicksettings_10600.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/name.seguri.android.getforegroundactivity_3.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/fr.bepo.clavierexterne_3.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/kuesji.link_eye.fdroid_2.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/org.fdroid.fdroid.privileged_2130.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/ch.ihdg.calendarcolor_4.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/com.pjuu.otterdroid_8.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/com.tobykurien.google_news_20.apk
+/Users/ahmadjalil/Downloads/antisplit-fdroid-corpus/krasilnikov.alexey.cryptopass_4.apk

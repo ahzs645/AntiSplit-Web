@@ -1,0 +1,316 @@
+{
+  "generatedAt": "2026-06-13T19:53:49.482Z",
+  "summary": {
+    "usable": 3,
+    "total": 27
+  },
+  "items": [
+    {
+      "path": "/Users/ahmadjalil/Downloads/Aqua prev work/Aqua Window Controls for MacOS (High) Sierra El Capitan v4.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 30,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/Aqua prev work/aqua_for_digsby_version_1_1_3_by_bogo_d_d2eabbp.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 358,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/Aqua prev work/caja-juego-de-cartas-saboteur20250811-1-17782g.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 3,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/Aqua prev work/icandy_1_1_by_pritcee_d4r6q98.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 81,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/Aqua prev work/mac_os_x_dp2_beta_aqua_icons_by_celebi23_d1wl51l.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 95,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/Aqua prev work/mac_os_x_v1_5___aqua_by_deelight_dtmig.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 20,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/Aqua prev work/mac_os_x_v1_5___graphite_by_deelight_dtmir.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 20,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+      "kind": "split-container",
+      "usableCorpusSample": true,
+      "entryCount": 6,
+      "apkEntryCount": 4,
+      "apkEntries": [
+        "config.armeabi_v7a.apk",
+        "config.en.apk",
+        "config.mdpi.apk",
+        "jp.co.sony.reonpocket.apk"
+      ],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "Archive contains 4 APK entries and can be passed to verify:corpus."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/Untitled MOIS webform.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 2,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/bc-antenatal-record.pdf (2).zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 2,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/console.myhealthrecords.alberta.ca.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 1027,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/family tree/app/MacFamilyTree 11/Contents/Frameworks/MacFamilyTreeCore.framework/Resources/WebSiteExport/WebSiteExportReactApp/WebSiteExportReactApp.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 12,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/family tree/app/MacFamilyTree 11/Contents/Frameworks/MacFamilyTreeCore.framework/Versions/A/Resources/WebSiteExport/WebSiteExportReactApp/WebSiteExportReactApp.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 12,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/family tree/app/MacFamilyTree 11/Contents/Frameworks/MacFamilyTreeCore.framework/Versions/Current/Resources/WebSiteExport/WebSiteExportReactApp/WebSiteExportReactApp.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 12,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/librelinkup/LibreLinkUp_5.0.1_APKPure.xapk",
+      "kind": "split-container",
+      "usableCorpusSample": true,
+      "entryCount": 6,
+      "apkEntryCount": 4,
+      "apkEntries": [
+        "config.arm64_v8a.apk",
+        "config.en.apk",
+        "config.mdpi.apk",
+        "org.nativescript.LibreLinkUp.apk"
+      ],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "Archive contains 4 APK entries and can be passed to verify:corpus."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/librelinkup/unpacked/config.arm64_v8a.apk",
+      "kind": "split-component-apk",
+      "usableCorpusSample": false,
+      "entryCount": 31,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": true,
+      "hasDex": false,
+      "reason": "APK looks like a config/split component without classes*.dex; verify the parent container instead."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/librelinkup/unpacked/config.en.apk",
+      "kind": "split-component-apk",
+      "usableCorpusSample": false,
+      "entryCount": 6,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": true,
+      "hasDex": false,
+      "reason": "APK looks like a config/split component without classes*.dex; verify the parent container instead."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/librelinkup/unpacked/config.mdpi.apk",
+      "kind": "split-component-apk",
+      "usableCorpusSample": false,
+      "entryCount": 64,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": true,
+      "hasDex": false,
+      "reason": "APK looks like a config/split component without classes*.dex; verify the parent container instead."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/librelinkup/unpacked/org.nativescript.LibreLinkUp.apk",
+      "kind": "standalone-apk",
+      "usableCorpusSample": true,
+      "entryCount": 943,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": true,
+      "hasDex": true,
+      "reason": "APK contains AndroidManifest.xml and classes*.dex and can be passed to verify:corpus."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/madera-recovered/node_modules/three/examples/fonts/MPLUSRounded1c/MPLUSRounded1c-Regular.typeface.json.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 2,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/myahsconnect.albertahealthservices.ca (1).zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 1446,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/myahsconnect.albertahealthservices.ca.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 721,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/porfolio/noahfiner.com.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 98,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/portfolioThemes-66f736e1725ddf5e0fb8f99dee0574350d7b35f5.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 785,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/skadis/New Folder With Items/IKEA+Skadis_+Skådis+Hooks+-+T+Clips.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 1,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/tasmap-recovered/node_modules/three/examples/fonts/MPLUSRounded1c/MPLUSRounded1c-Regular.typeface.json.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 2,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    },
+    {
+      "path": "/Users/ahmadjalil/Downloads/wp-migrate-db-pro-2.7.7.zip",
+      "kind": "generic-zip",
+      "usableCorpusSample": false,
+      "entryCount": 622,
+      "apkEntryCount": 0,
+      "apkEntries": [],
+      "hasAndroidManifest": false,
+      "hasDex": false,
+      "reason": "ZIP does not contain APK entries or an APK manifest/DEX layout."
+    }
+  ]
+}

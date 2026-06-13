@@ -1,0 +1,46 @@
+{
+  "name": "antisplit-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "merge:fixture": "tsx tools/merge-fixture.ts /Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+    "verify:fixture": "tsx tools/verify-fixture.ts /Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+    "verify:corpus": "tsx tools/verify-corpus.ts",
+    "verify:v3-corpus": "tsx tools/verify-corpus.ts --signing=v3 --report docs/corpus-v3-results.md",
+    "verify:v4-corpus": "tsx tools/verify-corpus.ts --signing=v4 --report docs/corpus-v4-results.md",
+    "verify:standalone-corpus": "tsx tools/verify-corpus.ts /Users/ahmadjalil/Downloads/librelinkup/unpacked/org.nativescript.LibreLinkUp.apk --report docs/corpus-standalone-results.md",
+    "verify:parity": "tsx tools/verify-parity.ts",
+    "verify:arsc-guards": "tsx tools/verify-arsc-guards.ts /Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+    "verify:v2-fixture": "tsx tools/verify-v2-fixture.ts /Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+    "verify:v3-fixture": "tsx tools/verify-v3-fixture.ts /Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+    "verify:v4-fixture": "tsx tools/verify-v4-fixture.ts /Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+    "compare:java-web": "tsx tools/compare-java-web.ts",
+    "discover:corpus": "tsx tools/discover-corpus.ts",
+    "fetch:fdroid-corpus": "tsx tools/fetch-fdroid-corpus.ts",
+    "verify:fdroid-corpus": "tsx tools/verify-corpus.ts --manifest docs/fdroid-corpus-manifest.txt --report docs/fdroid-corpus-results.md",
+    "audit:parity": "tsx tools/audit-parity.ts",
+    "verify:environment": "tsx tools/verify-environment.ts",
+    "scan:arsc": "tsx tools/scan-arsc-shapes.ts"
+  },
+  "dependencies": {
+    "@types/node-forge": "^1.3.14",
+    "fflate": "0.8.3",
+    "lucide-react": "0.468.0",
+    "node-forge": "^1.4.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.12.0",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "6.0.2",
+    "tsx": "4.22.4",
+    "typescript": "5.7.2",
+    "vite": "8.0.16"
+  }
+}

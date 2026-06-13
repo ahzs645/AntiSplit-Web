@@ -11,3 +11,6 @@ local.properties
 /images
 /app/release
 /.idea
+node_modules
+dist
+dist-fixtures

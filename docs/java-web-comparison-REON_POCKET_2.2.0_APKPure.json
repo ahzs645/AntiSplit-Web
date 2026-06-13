@@ -1,0 +1,73 @@
+{
+  "fixturePath": "/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
+  "java": {
+    "path": "dist-fixtures/REON_POCKET_2.2.0_APKPure_java_antisplit_unsigned.apk",
+    "bytes": 22629984,
+    "entryCount": 1025,
+    "verificationWarnings": [
+      "APK still contains 2 pre-existing JAR signature file(s)."
+    ],
+    "signingBlock": "APK Signature Scheme v2, APK Signature Scheme v3, APK Source Stamp, Unknown 2146444e, Unknown 42726577",
+    "v2Verified": false,
+    "v2Warnings": [
+      "v2 content digest did not match recomputed APK digest."
+    ],
+    "resources": "454.3 KB resources.arsc, 1 package(s) (jp.co.sony.reonpocket), 68 type config chunk(s), 4804 populated entries",
+    "manifestBytes": 26920,
+    "resourceBytes": 465160
+  },
+  "webUnsigned": {
+    "path": "dist-fixtures/REON_POCKET_2.2.0_APKPure_web_antisplit_unsigned.apk",
+    "bytes": 23220462,
+    "entryCount": 1022,
+    "verificationWarnings": [],
+    "signingBlock": "none",
+    "v2Verified": false,
+    "v2Warnings": [
+      "APK Signing Block not found."
+    ],
+    "resources": "451.7 KB resources.arsc, 1 package(s) (jp.co.sony.reonpocket), 72 type config chunk(s), 4805 populated entries",
+    "manifestBytes": 27328,
+    "resourceBytes": 462500
+  },
+  "webV2": {
+    "path": "dist-fixtures/REON_POCKET_2.2.0_APKPure_web_antisplit_v2.apk",
+    "bytes": 23310320,
+    "entryCount": 1025,
+    "verificationWarnings": [],
+    "signingBlock": "APK Signature Scheme v2",
+    "v2Verified": true,
+    "v2Warnings": [],
+    "resources": "451.7 KB resources.arsc, 1 package(s) (jp.co.sony.reonpocket), 72 type config chunk(s), 4805 populated entries",
+    "manifestBytes": 27328,
+    "resourceBytes": 462500
+  },
+  "unsignedComparison": {
+    "onlyJavaCount": 3,
+    "onlyWebCount": 0,
+    "onlyJava": [
+      "META-INF/BNDLTOOL.RSA",
+      "META-INF/BNDLTOOL.SF",
+      "META-INF/MANIFEST.MF"
+    ],
+    "onlyWeb": [],
+    "differentUncompressedSizeCount": 2,
+    "differentUncompressedSize": [
+      {
+        "name": "AndroidManifest.xml",
+        "java": 26920,
+        "web": 27328
+      },
+      {
+        "name": "resources.arsc",
+        "java": 465160,
+        "web": 462500
+      }
+    ]
+  },
+  "findings": [
+    "Java output contains a carried APK Signing Block, but its v2 digest does not verify after merging.",
+    "Web unsigned output strips stale signing material and has no v2 block.",
+    "Web v2 output contains a browser-generated v2 block that verifies with the local verifier."
+  ]
+}

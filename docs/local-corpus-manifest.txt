@@ -1,0 +1,12 @@
+# Local AntiSplit-Web corpus manifest.
+# One path per line. Blank lines and comments are ignored by:
+#   npm run verify:corpus -- --manifest docs/local-corpus-manifest.txt
+#
+# Independent split-container samples currently available on this machine:
+/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk
+/Users/ahmadjalil/Downloads/librelinkup/LibreLinkUp_5.0.1_APKPure.xapk
+
+# Optional standalone APK coverage from the unpacked LibreLinkUp folder.
+# This is useful for the single-APK path but should not be counted as a new
+# independent split-package sample:
+# /Users/ahmadjalil/Downloads/librelinkup/unpacked/org.nativescript.LibreLinkUp.apk
