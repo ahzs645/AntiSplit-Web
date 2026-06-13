@@ -21,6 +21,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [signingMode, setSigningMode] = useState<NonNullable<MergeOptions["signingMode"]>>("v1");
   const [compressionLevel, setCompressionLevel] = useState(6);
+  const [dragging, setDragging] = useState(false);
   const fileInput = useRef<HTMLInputElement | null>(null);
 
   const selectedSize = useMemo(() => files.reduce((sum, entry) => sum + entry.file.size, 0), [files]);
@@ -122,16 +123,32 @@ function App() {
       </section>
 
       <section
-        className="dropzone"
+        className={dragging ? "dropzone dragging" : "dropzone"}
+        role="button"
+        tabIndex={0}
+        aria-label="Choose split APK files"
+        onClick={() => fileInput.current?.click()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            fileInput.current?.click();
+          }
+        }}
         onDragOver={(event) => event.preventDefault()}
+        onDragEnter={(event) => {
+          event.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
         onDrop={(event) => {
           event.preventDefault();
+          setDragging(false);
           void handleFiles(event.dataTransfer.files);
         }}
       >
         <FileArchive size={32} />
         <div>
-          <strong>{files.length === 0 ? "Drop XAPK, APKS, APKM, or APK files" : `${files.length} file(s), ${formatBytes(selectedSize)}`}</strong>
+          <strong>{files.length === 0 ? "Tap to choose, or drop XAPK / APKS / APKM / APK files" : `${files.length} file(s), ${formatBytes(selectedSize)}`}</strong>
           <span>{files.length === 0 ? "Processing stays in this browser session." : files.map(({ file }) => file.name).join(", ")}</span>
         </div>
         <input
@@ -141,7 +158,14 @@ function App() {
           accept=".apk,.xapk,.apks,.apkm,.zip,application/zip,application/vnd.android.package-archive"
           onChange={(event) => event.target.files && void handleFiles(event.target.files)}
         />
-        <button onClick={() => fileInput.current?.click()}>Choose Files</button>
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            fileInput.current?.click();
+          }}
+        >
+          Choose Files
+        </button>
       </section>
 
       <section className="content">
