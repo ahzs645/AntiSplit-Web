@@ -70,6 +70,12 @@ npm run build
 
 The built static site is written to `dist/`.
 
+### GitHub Pages
+
+The web app is deployable as a static GitHub Pages site. The workflow in `.github/workflows/pages.yml` runs on pushes to `redesign`, `main`, or `master`, installs dependencies with `npm ci`, builds with `npm run build`, and publishes the generated `dist/` directory.
+
+Because GitHub Pages serves this repository under `/AntiSplit-Web/`, the Vite config uses that base path only in GitHub Actions. Local development and preview continue to use `/`.
+
 ### Fixture check
 
 The current fixture command is:
@@ -90,8 +96,7 @@ The full local parity gate is:
 npm run verify:parity
 ```
 
-It writes the latest step summary to `docs/parity-run.json` and runs the build, fixture checks, default and manifest corpus checks, ARSC shape scan, environment check, Java/web comparisons, and completion audit.
-It also regenerates the standalone APK corpus check for the available unpacked LibreLinkUp base APK.
+It writes the latest step summary to `docs/parity-run.json` and runs the build, fixture checks, default and manifest corpus checks, standalone APK check, F-Droid APK corpus check, ARSC shape scan, environment check, Java/web comparisons, and completion audit.
 
 To turn the generated evidence into a requirement-level completion report:
 
@@ -164,9 +169,11 @@ npm run verify:corpus -- /path/to/apk-samples --signing=v2
 
 The remaining parity work is tracked in [`docs/parity-plan.md`](docs/parity-plan.md), with a current requirement-by-requirement audit in [`docs/parity-audit.md`](docs/parity-audit.md) and machine-readable completion audit in [`docs/parity-completion-audit.json`](docs/parity-completion-audit.json). The current corpus baseline is in [`docs/corpus-results.md`](docs/corpus-results.md), and the local Downloads inventory is in [`docs/corpus-inventory.md`](docs/corpus-inventory.md).
 
-The current local corpus baseline is two XAPK samples, REON POCKET and LibreLinkUp, both passing in `JAR/v1` and `JAR/v1 + v2` modes.
+The current local corpus baseline is two XAPK samples, REON POCKET and LibreLinkUp, both passing in `JAR/v1`, `JAR/v1 + v2`, `JAR/v1 + v2 + v3`, and `JAR/v1 + v2 + v3 + v4 sidecar` modes where applicable.
 
-The Downloads inventory currently finds 3 usable archive samples out of 27 ZIP/APK-like files: the two XAPK split containers above plus the unpacked LibreLinkUp base APK. The stricter targeted inventory across Downloads, Desktop, Documents, and this repository finds 3 usable independent samples out of 51 ZIP/APK-like files after excluding generated fixture APKs. The standalone base APK is tracked separately in [`docs/corpus-standalone-results.md`](docs/corpus-standalone-results.md) and also passes both signing modes.
+The targeted inventory across Downloads, Desktop, Documents, and this repository currently finds 20 usable independent samples out of 102 ZIP/APK-like files after excluding generated fixture APKs: 2 split containers, 1 local standalone APK, and 17 downloaded F-Droid standalone APKs. The standalone and F-Droid corpora are tracked in [`docs/corpus-standalone-results.md`](docs/corpus-standalone-results.md) and [`docs/fdroid-corpus-results.md`](docs/fdroid-corpus-results.md), and both pass the current signing modes.
+
+Generated build and verification outputs are intentionally ignored by Git when they are bulky (`dist/`, `dist-fixtures/`, `node_modules/`). The checked-in `docs/` reports are lightweight evidence snapshots for the latest parity run.
 
 The current resource-table shape scan is tracked in [`docs/arsc-shape-report.md`](docs/arsc-shape-report.md); it reports no styled string pools, multi-package tables, or split type IDs absent from the base type string pool for the two independent XAPK samples.
 
