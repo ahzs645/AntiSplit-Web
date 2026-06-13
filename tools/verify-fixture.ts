@@ -28,6 +28,7 @@ const javaPreNVerification = await verifyWithBundledApkSig(javaPreNVerificationP
 const outputZipEntries = unzipSync(result.apkBytes, {
   filter: (file) => file.name === "resources.arsc"
 });
+const resourcesEntry = entries.find((entry) => entry.name === "resources.arsc");
 const outputResourceSummary = outputZipEntries["resources.arsc"] ? analyzeResourceTable(outputZipEntries["resources.arsc"]) : null;
 const outputPackage = outputResourceSummary?.packages[0];
 const outputPopulatedEntries = outputPackage?.typeChunks.reduce((sum, chunk) => sum + chunk.populatedEntries, 0) ?? 0;
@@ -47,6 +48,7 @@ const assertions: Array<[string, boolean, string]> = [
   ["stale BNDLTOOL signatures are removed", !entryNames.has("META-INF/BNDLTOOL.SF") && !entryNames.has("META-INF/BNDLTOOL.RSA"), "stale BNDLTOOL signature remains"],
   ["native libraries are uncompressed", entries.filter((entry) => /^lib\/[^/]+\/[^/]+\.so$/.test(entry.name)).every((entry) => entry.method === 0), "compressed native library found"],
   ["native libraries are 4096-byte aligned", entries.filter((entry) => /^lib\/[^/]+\/[^/]+\.so$/.test(entry.name)).every((entry) => entry.dataOffset % 4096 === 0), "unaligned native library found"],
+  ["resources.arsc is uncompressed and 4-byte aligned", Boolean(resourcesEntry && resourcesEntry.method === 0 && resourcesEntry.dataOffset % 4 === 0), resourcesEntry ? `method ${resourcesEntry.method}, data offset ${resourcesEntry.dataOffset}` : "missing resources.arsc"],
   ["split manifest attributes were removed", result.verification.some((line) => line.includes("requiredSplitTypes") && line.includes("splitTypes")), "attribute removal not reported"],
   ["split manifest elements were removed", result.verification.some((line) => line.includes("com.android.vending.splits.required") && line.includes("com.android.vending.splits")), "element removal not reported"],
   ["Play split metadata XML payload is preserved for resource-table consistency", entryNames.has("res/xml/splits0.xml"), "res/xml/splits0.xml missing"],

@@ -396,45 +396,32 @@ function writeAlignedApk(
 ): Uint8Array {
   const padding = new Map<string, number>();
   let apkBytes = zipSync(toZippable(entries, defaultLevel, padding));
-  const unpaddedEntries = readCentralDirectory(apkBytes);
-  let cumulativePadding = 0;
 
-  for (const entry of unpaddedEntries) {
-    if (!/^lib\/[^/]+\/[^/]+\.so$/.test(entry.name)) {
-      continue;
-    }
-    const requiredPadding = (4096 - ((entry.dataOffset + cumulativePadding) % 4096)) % 4096;
-    if (requiredPadding !== 0) {
-      const totalExtraLength = requiredPadding >= 4 ? requiredPadding : requiredPadding + 4096;
-      padding.set(entry.name, totalExtraLength);
-      cumulativePadding += totalExtraLength;
-    }
-  }
-
-  if (padding.size > 0) {
-    apkBytes = zipSync(toZippable(entries, defaultLevel, padding));
-  }
-
-  for (let pass = 0; pass < 4; pass++) {
+  for (let pass = 0; pass < 64; pass++) {
     const zipEntries = readCentralDirectory(apkBytes);
     let changed = false;
 
     for (const entry of zipEntries) {
-      if (!/^lib\/[^/]+\/[^/]+\.so$/.test(entry.name)) {
+      const alignment = alignmentBoundary(entry.name);
+      if (alignment === null) {
         continue;
       }
-      const requiredPadding = (4096 - (entry.dataOffset % 4096)) % 4096;
+      const requiredPadding = (alignment - (entry.dataOffset % alignment)) % alignment;
       if (requiredPadding !== 0) {
         const currentPadding = padding.get(entry.name) ?? 0;
-        const totalExtraLength = requiredPadding >= 4 ? requiredPadding : requiredPadding + 4096;
+        const totalExtraLength = requiredPadding >= 4 ? requiredPadding : requiredPadding + alignment;
         padding.set(entry.name, currentPadding + totalExtraLength);
         changed = true;
       }
     }
 
     if (!changed) {
-      if (padding.size > 0) {
-        log(`Aligned ${padding.size} native librar${padding.size === 1 ? "y" : "ies"} on 4096-byte boundaries`);
+      const alignedNativeLibraries = [...padding.keys()].filter((path) => /^lib\/[^/]+\/[^/]+\.so$/.test(path)).length;
+      if (alignedNativeLibraries > 0) {
+        log(`Aligned ${alignedNativeLibraries} native librar${alignedNativeLibraries === 1 ? "y" : "ies"} on 4096-byte boundaries`);
+      }
+      if (padding.has("resources.arsc")) {
+        log("Aligned resources.arsc on a 4-byte boundary");
       }
       return apkBytes;
     }
@@ -444,6 +431,16 @@ function writeAlignedApk(
 
   log("Native library alignment did not converge after 64 passes");
   return apkBytes;
+}
+
+function alignmentBoundary(path: string): number | null {
+  if (path === "resources.arsc") {
+    return 4;
+  }
+  if (/^lib\/[^/]+\/[^/]+\.so$/.test(path)) {
+    return 4096;
+  }
+  return null;
 }
 
 function toZippable(
