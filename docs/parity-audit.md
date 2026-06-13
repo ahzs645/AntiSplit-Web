@@ -18,7 +18,7 @@ This audit maps the original client-side parity goals to the current implementat
 | APK Signature Scheme v2 | Implemented as `JAR/v1 + experimental v2`, with browser verification, tamper-negative tests, stale v3/v3.1/source-stamp pair rejection, bundled Java apksig verification for Android 7.0+, and Android SDK `apksigner` checks. | `npm run verify:v2-fixture`, `npm run verify:corpus -- --report docs/corpus-results.md` |
 | JAR/v1 fallback | Preserved and verified for Android 4.4-6.0 using bundled Java apksig. | `npm run verify:fixture`, `npm run verify:corpus -- --report docs/corpus-results.md` |
 | Environment tooling | Bounded local check implemented; Java/Javac, `sdkmanager`, the Homebrew Android SDK root, and build-tools 36.0.0 `apksigner` are present locally. | `npm run verify:environment`, `docs/environment-check.json` |
-| Manifest split cleanup | Removes known split attributes, Play split metadata, `uses-split`, and Play split metadata XML payloads. | `npm run verify:fixture`, Java/web comparison reports |
+| Manifest split cleanup | Removes known split attributes, Play split metadata, and `uses-split`; preserves raw split XML resource payloads so `resources.arsc` file references remain satisfiable. | `npm run verify:fixture`, Java/web comparison reports |
 | Browser-only platform limits | Documented in README, parity plan, and the web UI. | `README.md`, `docs/parity-plan.md`, `src/main.tsx` |
 | Completion audit | Implemented as a machine-readable requirement status report. Current status is not complete: 7 proven, 2 partial, 1 missing. | `npm run audit:parity`, `docs/parity-completion-audit.json` |
 

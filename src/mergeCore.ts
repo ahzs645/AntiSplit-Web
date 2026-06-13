@@ -25,7 +25,6 @@ type ProgressSink = (message: string) => void;
 const ZIP_CONTAINER_RE = /\.(xapk|apks|apkm|zip)$/i;
 const APK_RE = /\.apk$/i;
 const SIGNATURE_RE = /^META-INF\/(?:[^/]+\.(?:RSA|DSA|EC|SF)|MANIFEST\.MF)$/i;
-const SPLIT_METADATA_XML_RE = /^res\/xml\/splits\d*\.xml$/i;
 const NO_COMPRESS_RE = /\.(?:arsc|so|png|jpg|jpeg|webp|gif|mp3|mp4|ogg|wav|3gp|apk)$/i;
 
 export function inspectPackage(files: NamedBytes[]): InspectResult {
@@ -87,18 +86,10 @@ export function mergePackage(files: NamedBytes[], options: MergeOptions, progres
   );
   const mergedEntries: Record<string, Uint8Array> = {};
   const baseEntries = base.entries ?? {};
-  const removedBaseSplitMetadata: string[] = [];
   for (const [path, bytes] of Object.entries(baseEntries)) {
-    if (SPLIT_METADATA_XML_RE.test(path)) {
-      removedBaseSplitMetadata.push(path);
-      continue;
-    }
     if (!SIGNATURE_RE.test(path)) {
       mergedEntries[path] = bytes;
     }
-  }
-  if (removedBaseSplitMetadata.length > 0) {
-    verification.push(`Removed Play split metadata XML: ${removedBaseSplitMetadata.join(", ")}.`);
   }
 
   const splitApks = selected.filter((apk) => apk !== base);
@@ -159,10 +150,6 @@ export function mergePackage(files: NamedBytes[], options: MergeOptions, progres
     const entries = split.entries ?? {};
     for (const [path, bytes] of Object.entries(entries)) {
       if (SIGNATURE_RE.test(path)) {
-        skipped.push(`${split.name}:${path}`);
-        continue;
-      }
-      if (SPLIT_METADATA_XML_RE.test(path)) {
         skipped.push(`${split.name}:${path}`);
         continue;
       }

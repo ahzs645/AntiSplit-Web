@@ -252,7 +252,7 @@ Current observed result on June 13, 2026:
   - The two native library entries are stored uncompressed and 4096-byte aligned.
   - Two base-manifest split attributes, `requiredSplitTypes` and `splitTypes`, were removed.
   - Two base-manifest split meta-data elements, `com.android.vending.splits.required` and `com.android.vending.splits`, were removed.
-  - Play split metadata XML such as `res/xml/splits0.xml` was removed.
+  - Play split metadata XML payloads such as `res/xml/splits0.xml` are preserved so resource-table file references remain satisfiable.
 - Resource-table diagnostics report:
   - Base APK: `365.0 KB resources.arsc`, 61 type config chunks, 3969 populated entries.
   - `config.mdpi.apk`: `29.4 KB resources.arsc`, 6 type config chunks, 201 populated entries, configs `default`, `mdpi`, `hdpi`, `xhdpi`, `anydpi`.
