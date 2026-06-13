@@ -24,6 +24,7 @@ const coreSteps: Step[] = [
   { label: "Verify v4 corpus", command: "npm", args: ["run", "verify:v4-corpus"] },
   { label: "Verify manifest corpus", command: "npm", args: ["run", "verify:corpus", "--", "--manifest", "docs/local-corpus-manifest.txt", "--report", "docs/corpus-manifest-results.md"] },
   { label: "Verify standalone APK corpus", command: "npm", args: ["run", "verify:standalone-corpus"] },
+  { label: "Fetch F-Droid APK corpus", command: "npm", args: ["run", "fetch:fdroid-corpus"] },
   { label: "Verify F-Droid APK corpus", command: "npm", args: ["run", "verify:fdroid-corpus"] },
   { label: "Scan ARSC shapes", command: "npm", args: ["run", "scan:arsc", "--", "--manifest", "docs/local-corpus-manifest.txt", "--report", "docs/arsc-shape-report.md"] },
   { label: "Verify local environment", command: "npm", args: ["run", "verify:environment"] },

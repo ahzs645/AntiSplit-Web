@@ -96,7 +96,7 @@ The full local parity gate is:
 npm run verify:parity
 ```
 
-It writes the latest step summary to `docs/parity-run.json` and runs the build, fixture checks, default and manifest corpus checks, standalone APK check, F-Droid APK corpus check, ARSC shape scan, environment check, Java/web comparisons, and completion audit.
+It writes the latest step summary to `docs/parity-run.json` and runs the build, fixture checks, default and manifest corpus checks, standalone APK check, F-Droid APK corpus check, ARSC shape scan, environment check, Java/web comparisons, and completion audit. Generated report files under `docs/` are ignored by Git and can be recreated locally.
 
 To turn the generated evidence into a requirement-level completion report:
 
@@ -104,7 +104,7 @@ To turn the generated evidence into a requirement-level completion report:
 npm run audit:parity
 ```
 
-It writes [`docs/parity-completion-audit.json`](docs/parity-completion-audit.json), including which requirements are proven, partial, or missing.
+It writes `docs/parity-completion-audit.json`, including which requirements are proven, partial, or missing.
 
 To capture local Android SDK tooling availability:
 
@@ -112,7 +112,7 @@ To capture local Android SDK tooling availability:
 npm run verify:environment
 ```
 
-It writes [`docs/environment-check.json`](docs/environment-check.json). This is the bounded check used to explain whether Android SDK `apksigner` validation can run locally.
+It writes `docs/environment-check.json`. This is the bounded check used to explain whether Android SDK `apksigner` validation can run locally.
 
 Additional local samples can be batch-checked with:
 
@@ -133,6 +133,13 @@ The available standalone APK path is verified separately:
 
 ```sh
 npm run verify:standalone-corpus
+```
+
+The F-Droid corpus manifest is generated on demand:
+
+```sh
+npm run fetch:fdroid-corpus
+npm run verify:fdroid-corpus
 ```
 
 To inventory a messy local folder before running verification:
@@ -167,15 +174,15 @@ npm run verify:corpus -- /path/to/apk-samples --signing=v1
 npm run verify:corpus -- /path/to/apk-samples --signing=v2
 ```
 
-The remaining parity work is tracked in [`docs/parity-plan.md`](docs/parity-plan.md), with a current requirement-by-requirement audit in [`docs/parity-audit.md`](docs/parity-audit.md) and machine-readable completion audit in [`docs/parity-completion-audit.json`](docs/parity-completion-audit.json). The current corpus baseline is in [`docs/corpus-results.md`](docs/corpus-results.md), and the local Downloads inventory is in [`docs/corpus-inventory.md`](docs/corpus-inventory.md).
+The remaining parity work is tracked in [`docs/parity-plan.md`](docs/parity-plan.md), with a durable requirement-by-requirement audit in [`docs/parity-audit.md`](docs/parity-audit.md). Machine-readable run reports such as `docs/parity-completion-audit.json`, `docs/corpus-results.json`, and inventory reports are generated locally and intentionally ignored.
 
 The current local corpus baseline is two XAPK samples, REON POCKET and LibreLinkUp, both passing in `JAR/v1`, `JAR/v1 + v2`, `JAR/v1 + v2 + v3`, and `JAR/v1 + v2 + v3 + v4 sidecar` modes where applicable.
 
-The targeted inventory across Downloads, Desktop, Documents, and this repository currently finds 20 usable independent samples out of 102 ZIP/APK-like files after excluding generated fixture APKs: 2 split containers, 1 local standalone APK, and 17 downloaded F-Droid standalone APKs. The standalone and F-Droid corpora are tracked in [`docs/corpus-standalone-results.md`](docs/corpus-standalone-results.md) and [`docs/fdroid-corpus-results.md`](docs/fdroid-corpus-results.md), and both pass the current signing modes.
+The latest local targeted inventory found 20 usable independent samples out of 102 ZIP/APK-like files after excluding generated fixture APKs: 2 split containers, 1 local standalone APK, and 17 downloaded F-Droid standalone APKs. Regenerate the standalone and F-Droid corpus reports with `npm run verify:standalone-corpus` and `npm run verify:fdroid-corpus`.
 
-Generated build and verification outputs are intentionally ignored by Git when they are bulky (`dist/`, `dist-fixtures/`, `node_modules/`). The checked-in `docs/` reports are lightweight evidence snapshots for the latest parity run.
+Generated build and verification outputs are intentionally ignored by Git (`dist/`, `dist-fixtures/`, `node_modules/`, and generated `docs/` reports). The checked-in `docs/` folder is reserved for durable docs and the local manifest used by the parity scripts.
 
-The current resource-table shape scan is tracked in [`docs/arsc-shape-report.md`](docs/arsc-shape-report.md); it reports no styled string pools, multi-package tables, or split type IDs absent from the base type string pool for the two independent XAPK samples.
+The current resource-table shape scan can be regenerated with `npm run scan:arsc -- --manifest docs/local-corpus-manifest.txt --report docs/arsc-shape-report.md`.
 
 The local Java/REAndroid merge path can be compared against the web merger with:
 
@@ -183,7 +190,7 @@ The local Java/REAndroid merge path can be compared against the web merger with:
 npm run compare:java-web
 ```
 
-This compiles `tools/java/CompareJavaMerge.java`, runs the local REAndroid merger on the REON fixture, generates unsigned and v1+v2 web outputs, and writes [`docs/java-web-comparison.md`](docs/java-web-comparison.md) plus a machine-readable [`docs/java-web-comparison.json`](docs/java-web-comparison.json) companion and sample-specific reports. The same tool can be run against another sample, for example:
+This compiles `tools/java/CompareJavaMerge.java`, runs the local REAndroid merger on the REON fixture, generates unsigned and v1+v2 web outputs, and writes generated Markdown/JSON reports under `docs/`. The same tool can be run against another sample, for example:
 
 ```sh
 npm run compare:java-web -- /path/to/sample.xapk

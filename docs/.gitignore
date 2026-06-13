@@ -1,0 +1,7 @@
+# Generated verification and corpus reports. Keep durable docs tracked.
+*
+!.gitignore
+!local-corpus-manifest.txt
+!parity-audit.md
+!parity-plan.md
+!signing-v3-v4-feasibility.md
