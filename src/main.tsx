@@ -19,7 +19,7 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<MergeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [signingMode, setSigningMode] = useState<NonNullable<MergeOptions["signingMode"]>>("v1");
+  const [signingMode, setSigningMode] = useState<NonNullable<MergeOptions["signingMode"]>>("v1-v2");
   const [compressionLevel, setCompressionLevel] = useState(6);
   const [dragging, setDragging] = useState(false);
   const fileInput = useRef<HTMLInputElement | null>(null);
@@ -212,8 +212,8 @@ function App() {
           <label className="setting">
             <span>Signing</span>
             <select value={signingMode} onChange={(event) => setSigningMode(event.target.value as NonNullable<MergeOptions["signingMode"]>)}>
-              <option value="v1">JAR/v1</option>
-              <option value="v1-v2">JAR/v1 + experimental v2</option>
+              <option value="v1-v2">JAR/v1 + v2 (recommended)</option>
+              <option value="v1">JAR/v1 only (legacy)</option>
               <option value="v1-v2-v3">JAR/v1 + experimental v2/v3</option>
               <option value="v1-v2-v3-v4">JAR/v1 + experimental v2/v3 + v4 sidecar</option>
               <option value="none">Unsigned</option>
@@ -221,7 +221,7 @@ function App() {
           </label>
           <div className="notice">
             <ShieldAlert size={18} />
-            <span>JAR/v1 is the default. The v2 mode is browser-verified but still needs Android apksigner validation before becoming default.</span>
+            <span>JAR/v1 + v2 is the default and is Android apksigner-verified. Apps targeting SDK 30 or newer may require v2 on matching Android versions.</span>
           </div>
           <div className="capabilities">
             <div>

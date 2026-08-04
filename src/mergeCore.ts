@@ -1,5 +1,10 @@
 import { unzipSync, zipSync, strFromU8, type Zippable } from "fflate";
-import { readBinaryManifestMinSdk, readBinaryManifestPackageName, sanitizeBinaryManifest } from "./androidBinaryXml";
+import {
+  readBinaryManifestMinSdk,
+  readBinaryManifestPackageName,
+  readBinaryManifestTargetSdk,
+  sanitizeBinaryManifest
+} from "./androidBinaryXml";
 import { readCentralDirectory, verifyMergedApk } from "./apkVerification";
 import { createV1SignatureFiles } from "./apkV1Signer";
 import { signApkWithV2DebugKey, signApkWithV2V3DebugKey } from "./apkV2Signer";
@@ -30,6 +35,7 @@ const NO_COMPRESS_RE = /\.(?:arsc|so|png|jpg|jpeg|webp|gif|mp3|mp4|ogg|wav|3gp|a
 export function inspectPackage(files: NamedBytes[]): InspectResult {
   const apks = collectApkInputs(files);
   const packageName = readXapkManifestPackage(files) ?? readBaseApkManifestPackage(apks);
+  const targetSdkVersion = readBaseApkManifestTargetSdk(apks);
   const apkEntries = apks.map(toSummary);
   const warnings: string[] = [];
 
@@ -42,8 +48,11 @@ export function inspectPackage(files: NamedBytes[]): InspectResult {
   if (apks.some((apk) => apk.role === "config")) {
     warnings.push("Config split APKs usually contain resources. The browser core will attempt a guarded resources.arsc merge and report unsupported cases if the table shape is outside the current implementation.");
   }
+  if (targetSdkVersion !== null && targetSdkVersion >= 30) {
+    warnings.push(`This app targets SDK ${targetSdkVersion}, which requires APK Signature Scheme v2 or newer on matching Android platform versions. JAR/v1 + v2 is selected by default.`);
+  }
 
-  return { packageName, apkEntries, warnings };
+  return { packageName, targetSdkVersion, apkEntries, warnings };
 }
 
 export function mergePackage(files: NamedBytes[], options: MergeOptions, progress: ProgressSink = () => {}): MergeResult {
@@ -197,6 +206,7 @@ export function mergePackage(files: NamedBytes[], options: MergeOptions, progres
   if (signingMode === "v1" || signingMode === "v1-v2" || signingMode === "v1-v2-v3" || signingMode === "v1-v2-v3-v4") {
     log("Signing APK with client-side JAR/v1 signature");
     const manifestMinSdk = mergedEntries["AndroidManifest.xml"] ? readBinaryManifestMinSdk(mergedEntries["AndroidManifest.xml"]) ?? 1 : null;
+    const manifestTargetSdk = mergedEntries["AndroidManifest.xml"] ? readBinaryManifestTargetSdk(mergedEntries["AndroidManifest.xml"]) : null;
     const v1DigestAlgorithm = manifestMinSdk !== null && manifestMinSdk < 18 ? "sha1" : "sha256";
     const signatureFiles = createV1SignatureFiles(mergedEntries, { digestAlgorithm: v1DigestAlgorithm });
     mergedEntries["META-INF/MANIFEST.MF"] = signatureFiles.manifest;
@@ -206,6 +216,9 @@ export function mergePackage(files: NamedBytes[], options: MergeOptions, progres
     verification.push(`Generated debug X.509 certificate (${signatureFiles.certificateDer.byteLength} bytes).`);
     if (signingMode === "v1") {
       warnings.push("APK Signature Scheme v2/v3 signing is not enabled for this output; it uses JAR/v1 signing only.");
+      if (manifestTargetSdk !== null && manifestTargetSdk >= 30) {
+        warnings.push(`This JAR/v1-only output targets SDK ${manifestTargetSdk} and will fail the platform's v2-or-newer signature requirement on matching Android versions. Select JAR/v1 + v2 for an installable output.`);
+      }
     }
   }
 
@@ -372,6 +385,22 @@ function readBaseApkManifestPackage(apks: ApkInput[]): string | null {
     });
     const manifest = entries["AndroidManifest.xml"];
     return manifest ? readBinaryManifestPackageName(manifest) : null;
+  } catch {
+    return null;
+  }
+}
+
+function readBaseApkManifestTargetSdk(apks: ApkInput[]): number | null {
+  const base = apks.length > 0 ? chooseBaseApk(apks) : null;
+  if (!base) {
+    return null;
+  }
+  try {
+    const entries = unzipSync(base.bytes, {
+      filter: (entry) => entry.name === "AndroidManifest.xml"
+    });
+    const manifest = entries["AndroidManifest.xml"];
+    return manifest ? readBinaryManifestTargetSdk(manifest) : null;
   } catch {
     return null;
   }

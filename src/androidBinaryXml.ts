@@ -171,6 +171,29 @@ export function readBinaryManifestMinSdk(input: Uint8Array): number | null {
   return null;
 }
 
+export function readBinaryManifestTargetSdk(input: Uint8Array): number | null {
+  const pool = readStringPool(input);
+  if (!pool) {
+    return null;
+  }
+
+  let cursor = 8;
+  while (cursor + 8 <= input.length) {
+    const type = readU16(input, cursor);
+    const size = readU32(input, cursor + 4);
+    if (size < 8 || cursor + size > input.length) {
+      return null;
+    }
+
+    if (type === RES_XML_START_ELEMENT_TYPE && getStartElementName(input, cursor, pool) === "uses-sdk") {
+      return getAttributeIntegerValue(input, cursor, pool, "targetSdkVersion");
+    }
+
+    cursor += size;
+  }
+  return null;
+}
+
 export function findUtf16Markers(bytes: Uint8Array, markers: string[]): string[] {
   return markers.filter((marker) => includesAscii(bytes, marker) || includesUtf16Le(bytes, marker));
 }

@@ -16,6 +16,7 @@ export type ApkEntrySummary = {
 
 export type InspectResult = {
   packageName: string | null;
+  targetSdkVersion: number | null;
   apkEntries: ApkEntrySummary[];
   warnings: string[];
 };

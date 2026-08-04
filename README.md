@@ -232,8 +232,8 @@ It writes `dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit_v4.apk` plus `dist-
 
 The web UI exposes signing as:
 
-- `JAR/v1` by default.
-- `JAR/v1 + experimental v2` for browser-verified v2 output.
+- `JAR/v1 + v2` by default for browser-verified and Android `apksigner`-validated output. Apps targeting SDK 30 or newer may require v2 on matching Android versions.
+- `JAR/v1` as a legacy-only option.
 - `JAR/v1 + experimental v2/v3` for browser-verified v2 and minimal v3.0 output.
 - `JAR/v1 + experimental v2/v3 + v4 sidecar` for browser-verified v2/v3 output plus a downloadable `.idsig`.
 - `Unsigned` for workflows that will sign externally.
