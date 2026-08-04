@@ -252,7 +252,18 @@ function App() {
           <header>
             <h2>Log</h2>
           </header>
-          <pre>{logs.length ? logs.join("\n") : "Waiting for input."}</pre>
+          <pre aria-busy={busy}>
+            {logs.length ? (
+              busy ? (
+                <>
+                  {logs.length > 1 ? `${logs.slice(0, -1).join("\n")}\n` : ""}
+                  <span className="active-log" role="status" aria-live="polite">{logs[logs.length - 1]}</span>
+                </>
+              ) : logs.join("\n")
+            ) : busy ? (
+              <span className="active-log" role="status" aria-live="polite">Inspecting selected package</span>
+            ) : "Waiting for input."}
+          </pre>
         </div>
         <div className="panel result-panel">
           <header>

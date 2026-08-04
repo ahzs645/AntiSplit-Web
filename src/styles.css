@@ -435,6 +435,30 @@ h2 {
   word-break: break-word;
 }
 
+.active-log {
+  color: #5eead4;
+  font-weight: 700;
+}
+
+.active-log::before {
+  animation: active-log-pulse 1.2s ease-in-out infinite;
+  content: "●";
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes active-log-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active-log::before {
+    animation: none;
+  }
+}
+
 .result-panel {
   align-content: start;
 }

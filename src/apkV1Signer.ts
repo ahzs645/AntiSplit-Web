@@ -12,6 +12,15 @@ export type V1DigestAlgorithm = "sha1" | "sha256";
 
 type V1SignatureOptions = {
   digestAlgorithm?: V1DigestAlgorithm;
+  onDigestProgress?: (progress: V1DigestProgress) => void;
+};
+
+export type V1DigestProgress = {
+  currentEntry: string;
+  processedBytes: number;
+  totalBytes: number;
+  processedEntries: number;
+  totalEntries: number;
 };
 
 export type SigningIdentity = {
@@ -35,6 +44,9 @@ export function createV1SignatureFiles(entries: Record<string, Uint8Array>, opti
   const signableEntries = Object.entries(entries)
     .filter(([name]) => !SIGNATURE_ENTRY_RE.test(name) && !name.endsWith("/"))
     .sort(([a], [b]) => a.localeCompare(b));
+  const totalBytes = signableEntries.reduce((sum, [, bytes]) => sum + bytes.byteLength, 0);
+  let processedBytes = 0;
+  let processedEntries = 0;
 
   const manifestSections: Array<{ name: string; text: string }> = [];
   const manifestMain = "Manifest-Version: 1.0\r\nCreated-By: AntiSplit Web\r\n\r\n";
@@ -42,7 +54,26 @@ export function createV1SignatureFiles(entries: Record<string, Uint8Array>, opti
   for (const [name, bytes] of signableEntries) {
     manifestSections.push({
       name,
-      text: wrapManifestSection(`Name: ${name}\r\n${digestField}: ${digestBase64(bytes, digestAlgorithm)}\r\n\r\n`)
+      text: wrapManifestSection(
+        `Name: ${name}\r\n${digestField}: ${digestBase64(bytes, digestAlgorithm, (chunkBytes) => {
+          processedBytes += chunkBytes;
+          options.onDigestProgress?.({
+            currentEntry: name,
+            processedBytes,
+            totalBytes,
+            processedEntries,
+            totalEntries: signableEntries.length
+          });
+        })}\r\n\r\n`
+      )
+    });
+    processedEntries++;
+    options.onDigestProgress?.({
+      currentEntry: name,
+      processedBytes,
+      totalBytes,
+      processedEntries,
+      totalEntries: signableEntries.length
     });
   }
 
@@ -141,9 +172,18 @@ function getSigningIdentity() {
   return cachedIdentity;
 }
 
-function digestBase64(bytes: Uint8Array, digestAlgorithm: V1DigestAlgorithm): string {
+function digestBase64(
+  bytes: Uint8Array,
+  digestAlgorithm: V1DigestAlgorithm,
+  onChunk?: (processedBytes: number) => void
+): string {
   const md = digestAlgorithm === "sha1" ? forge.md.sha1.create() : forge.md.sha256.create();
-  md.update(uint8ToBinary(bytes), "raw");
+  const chunkSize = 1024 * 1024;
+  for (let offset = 0; offset < bytes.byteLength; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.byteLength));
+    md.update(uint8ToBinary(chunk), "raw");
+    onChunk?.(chunk.byteLength);
+  }
   return forge.util.encode64(md.digest().getBytes());
 }
 

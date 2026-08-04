@@ -204,15 +204,37 @@ export function mergePackage(files: NamedBytes[], options: MergeOptions, progres
   }
 
   if (signingMode === "v1" || signingMode === "v1-v2" || signingMode === "v1-v2-v3" || signingMode === "v1-v2-v3-v4") {
-    log("Signing APK with client-side JAR/v1 signature");
     const manifestMinSdk = mergedEntries["AndroidManifest.xml"] ? readBinaryManifestMinSdk(mergedEntries["AndroidManifest.xml"]) ?? 1 : null;
     const manifestTargetSdk = mergedEntries["AndroidManifest.xml"] ? readBinaryManifestTargetSdk(mergedEntries["AndroidManifest.xml"]) : null;
     const v1DigestAlgorithm = manifestMinSdk !== null && manifestMinSdk < 18 ? "sha1" : "sha256";
-    const signatureFiles = createV1SignatureFiles(mergedEntries, { digestAlgorithm: v1DigestAlgorithm });
+    const signableEntries = Object.entries(mergedEntries).filter(([name]) => !SIGNATURE_RE.test(name) && !name.endsWith("/"));
+    const signableBytes = signableEntries.reduce((sum, [, bytes]) => sum + bytes.byteLength, 0);
+    const digestLabel = v1DigestAlgorithm === "sha1" ? "SHA-1" : "SHA-256";
+    log(
+      `Creating JAR/v1 signature: hashing ${signableEntries.length} files (${formatProgressBytes(signableBytes)}) with ${digestLabel} locally in this browser`
+    );
+    let nextDigestPercent = 25;
+    const signatureFiles = createV1SignatureFiles(mergedEntries, {
+      digestAlgorithm: v1DigestAlgorithm,
+      onDigestProgress: ({ processedBytes, totalBytes, processedEntries, totalEntries }) => {
+        const percent = totalBytes === 0 ? 100 : Math.floor((processedBytes / totalBytes) * 100);
+        const complete = processedEntries === totalEntries;
+        if (!complete && (percent < nextDigestPercent || percent >= 100)) {
+          return;
+        }
+        log(
+          `JAR/v1 digest progress: ${Math.min(100, percent)}% (${formatProgressBytes(processedBytes)} of ${formatProgressBytes(totalBytes)}; ${processedEntries} of ${totalEntries} files complete)`
+        );
+        while (nextDigestPercent <= percent) {
+          nextDigestPercent += 25;
+        }
+      }
+    });
     mergedEntries["META-INF/MANIFEST.MF"] = signatureFiles.manifest;
     mergedEntries["META-INF/ANTISPLT.SF"] = signatureFiles.signatureFile;
     mergedEntries["META-INF/ANTISPLT.RSA"] = signatureFiles.signatureBlock;
-    verification.push(`Added client-side JAR/v1 APK signature files (${v1DigestAlgorithm.toUpperCase()} digest${manifestMinSdk !== null ? `, minSdk ${manifestMinSdk}` : ""}).`);
+    log("JAR/v1 signature complete: added MANIFEST.MF, ANTISPLT.SF, and ANTISPLT.RSA");
+    verification.push(`Added client-side JAR/v1 APK signature files (${digestLabel} digest${manifestMinSdk !== null ? `, minSdk ${manifestMinSdk}` : ""}).`);
     verification.push(`Generated debug X.509 certificate (${signatureFiles.certificateDer.byteLength} bytes).`);
     if (signingMode === "v1") {
       warnings.push("APK Signature Scheme v2/v3 signing is not enabled for this output; it uses JAR/v1 signing only.");
@@ -222,7 +244,10 @@ export function mergePackage(files: NamedBytes[], options: MergeOptions, progres
     }
   }
 
-  log("Writing APK zip");
+  const outputEntryBytes = Object.values(mergedEntries).reduce((sum, bytes) => sum + bytes.byteLength, 0);
+  log(
+    `Building APK ZIP: writing ${Object.keys(mergedEntries).length} entries (${formatProgressBytes(outputEntryBytes)} before compression) at compression level ${normalizeCompressionLevel(options.compressionLevel)}; this is usually the longest step for large packages`
+  );
   let apkBytes = writeAlignedApk(mergedEntries, normalizeCompressionLevel(options.compressionLevel), log);
   if (signingMode === "v1-v2" || signingMode === "v1-v2-v3" || signingMode === "v1-v2-v3-v4") {
     log("Adding experimental APK Signature Scheme v2 block");
@@ -425,41 +450,65 @@ function writeAlignedApk(
 ): Uint8Array {
   const padding = new Map<string, number>();
   let apkBytes = zipSync(toZippable(entries, defaultLevel, padding));
+  const zipEntries = readCentralDirectory(apkBytes);
+  const nativeLibraryCount = zipEntries.filter((entry) => /^lib\/[^/]+\/[^/]+\.so$/.test(entry.name)).length;
+  let precedingPadding = 0;
 
-  for (let pass = 0; pass < 64; pass++) {
-    const zipEntries = readCentralDirectory(apkBytes);
-    let changed = false;
-
-    for (const entry of zipEntries) {
-      const alignment = alignmentBoundary(entry.name);
-      if (alignment === null) {
-        continue;
-      }
-      const requiredPadding = (alignment - (entry.dataOffset % alignment)) % alignment;
-      if (requiredPadding !== 0) {
-        const currentPadding = padding.get(entry.name) ?? 0;
-        const totalExtraLength = requiredPadding >= 4 ? requiredPadding : requiredPadding + alignment;
-        padding.set(entry.name, currentPadding + totalExtraLength);
-        changed = true;
-      }
+  for (const entry of zipEntries) {
+    const alignment = alignmentBoundary(entry.name);
+    if (alignment === null) {
+      continue;
     }
-
-    if (!changed) {
-      const alignedNativeLibraries = [...padding.keys()].filter((path) => /^lib\/[^/]+\/[^/]+\.so$/.test(path)).length;
-      if (alignedNativeLibraries > 0) {
-        log(`Aligned ${alignedNativeLibraries} native librar${alignedNativeLibraries === 1 ? "y" : "ies"} on 4096-byte boundaries`);
-      }
-      if (padding.has("resources.arsc")) {
-        log("Aligned resources.arsc on a 4-byte boundary");
-      }
-      return apkBytes;
+    const predictedDataOffset = entry.dataOffset + precedingPadding;
+    const requiredPadding = (alignment - (predictedDataOffset % alignment)) % alignment;
+    if (requiredPadding === 0) {
+      continue;
     }
-
-    apkBytes = zipSync(toZippable(entries, defaultLevel, padding));
+    const totalExtraLength = requiredPadding >= 4 ? requiredPadding : requiredPadding + alignment;
+    padding.set(entry.name, totalExtraLength);
+    precedingPadding += totalExtraLength;
   }
 
-  log("Native library alignment did not converge after 64 passes");
+  if (padding.size === 0) {
+    log(`APK ZIP complete: ${formatProgressBytes(apkBytes.byteLength)}; all stored files were already aligned`);
+    return apkBytes;
+  }
+
+  const targets = [
+    nativeLibraryCount > 0 ? `${nativeLibraryCount} native librar${nativeLibraryCount === 1 ? "y" : "ies"} on 4096-byte boundaries` : "",
+    zipEntries.some((entry) => entry.name === "resources.arsc") ? "resources.arsc on a 4-byte boundary" : ""
+  ].filter(Boolean).join(" and ");
+  log(
+    `APK ZIP compression complete (${formatProgressBytes(apkBytes.byteLength)}); rewriting once with Android alignment padding for ${targets}`
+  );
+  apkBytes = zipSync(toZippable(entries, defaultLevel, padding));
+
+  const unalignedEntries = readCentralDirectory(apkBytes).filter((entry) => {
+    const alignment = alignmentBoundary(entry.name);
+    return alignment !== null && entry.dataOffset % alignment !== 0;
+  });
+  if (unalignedEntries.length > 0) {
+    log(`APK ZIP alignment check found ${unalignedEntries.length} unaligned stored file(s)`);
+  } else {
+    log(
+      `APK ZIP complete: ${formatProgressBytes(apkBytes.byteLength)}; verified ${targets}`
+    );
+  }
   return apkBytes;
+}
+
+function formatProgressBytes(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const units = ["KB", "MB", "GB"];
+  let value = bytes / 1024;
+  let unit = units[0];
+  for (let index = 1; value >= 1024 && index < units.length; index++) {
+    value /= 1024;
+    unit = units[index];
+  }
+  return `${value.toFixed(value >= 10 ? 1 : 2)} ${unit}`;
 }
 
 function alignmentBoundary(path: string): number | null {
