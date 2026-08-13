@@ -18,7 +18,14 @@ type StringPoolChunk = {
   offset: number;
   size: number;
   strings: string[];
+  styles: Array<StringPoolStyle | null>;
 };
+
+type StringPoolStyle = Array<{
+  nameIndex: number;
+  firstChar: number;
+  lastChar: number;
+}>;
 
 type PackageChunk = {
   offset: number;
@@ -88,8 +95,10 @@ export function tryMergeResourceTables(baseApkBytes: Uint8Array, splitApks: Spli
 
   const diagnostics: string[] = [];
   const tableStrings = [...base.tableStringPool.strings];
+  const tableStyles = base.tableStringPool.styles.map(cloneStyle);
   const keyStrings = [...base.packageChunk.keyStringPool.strings];
-  const tableStringIndex = indexStrings(tableStrings);
+  const keyStyles = base.packageChunk.keyStringPool.styles.map(cloneStyle);
+  const tableStringIndex = indexStyledStrings(base.tableStringPool);
   const keyStringIndex = indexStrings(keyStrings);
   const typeSpecChunks = new Map<number, Uint8Array>();
   const appendedTypeChunks: Uint8Array[] = [];
@@ -124,6 +133,13 @@ export function tryMergeResourceTables(baseApkBytes: Uint8Array, splitApks: Spli
       continue;
     }
 
+    const splitTableStringRemap = mergeStyledStringPool(
+      split.parsed.tableStringPool,
+      tableStrings,
+      tableStyles,
+      tableStringIndex
+    );
+
     for (const chunk of splitPackage.children) {
       if (chunk.type === RES_TABLE_TYPE_SPEC_TYPE) {
         const splitSpec = split.parsed.bytes.slice(chunk.offset, chunk.offset + chunk.size);
@@ -148,11 +164,9 @@ export function tryMergeResourceTables(baseApkBytes: Uint8Array, splitApks: Spli
       const rewritten = rewriteTypeChunk(
         split.parsed.bytes.slice(chunk.offset, chunk.offset + chunk.size),
         splitPackage.keyStringPool.strings,
-        split.parsed.tableStringPool.strings,
+        splitTableStringRemap,
         keyStrings,
-        tableStrings,
-        keyStringIndex,
-        tableStringIndex
+        keyStringIndex
       );
       if (!rewritten) {
         diagnostics.push(`${split.name}: unsupported or malformed resource type chunk ${typeId}.`);
@@ -170,9 +184,40 @@ export function tryMergeResourceTables(baseApkBytes: Uint8Array, splitApks: Spli
     return { mergedBytes: null, diagnostics, unsupported: ["No mergeable split resource type chunks were found."] };
   }
 
-  const tableStringPool = buildUtf8StringPool(tableStrings);
-  const keyStringPool = buildUtf8StringPool(keyStrings);
-  const rebuiltPackage = rebuildPackage(base.bytes, base.packageChunk, keyStringPool, typeSpecChunks, appendedTypeChunks);
+  const normalizedTablePool = normalizeStyledStringPool(tableStrings, tableStyles);
+  const remappedSplitTypeChunks: Uint8Array[] = [];
+  for (const appendedTypeChunk of appendedTypeChunks) {
+    const chunk = remapTypeChunkStringValues(appendedTypeChunk, normalizedTablePool.remap);
+    if (!chunk) {
+      return { mergedBytes: null, diagnostics, unsupported: ["A merged resource type chunk could not be remapped after styled string-pool normalization."] };
+    }
+    remappedSplitTypeChunks.push(chunk);
+  }
+  const remappedBaseTypeChunks = new Map<number, Uint8Array>();
+  for (const child of base.packageChunk.children) {
+    if (child.type !== RES_TABLE_TYPE_TYPE) {
+      continue;
+    }
+    const chunk = remapTypeChunkStringValues(
+      base.bytes.slice(child.offset, child.offset + child.size),
+      normalizedTablePool.remap
+    );
+    if (!chunk) {
+      return { mergedBytes: null, diagnostics, unsupported: ["A base resource type chunk could not be remapped after styled string-pool normalization."] };
+    }
+    remappedBaseTypeChunks.set(child.offset, chunk);
+  }
+
+  const tableStringPool = buildUtf8StringPool(normalizedTablePool.strings, normalizedTablePool.styles);
+  const keyStringPool = buildUtf8StringPool(keyStrings, keyStyles);
+  const rebuiltPackage = rebuildPackage(
+    base.bytes,
+    base.packageChunk,
+    keyStringPool,
+    typeSpecChunks,
+    remappedBaseTypeChunks,
+    remappedSplitTypeChunks
+  );
   const rebuiltTable = rebuildTable(base.bytes, base, tableStringPool, rebuiltPackage);
   diagnostics.push(
     `resources.arsc merge: merged ${typeSpecChunks.size} type spec chunk(s), appended ${appendedTypeChunks.length} split type chunk(s), table strings ${base.tableStringPool.strings.length}->${tableStrings.length}, key strings ${base.packageChunk.keyStringPool.strings.length}->${keyStrings.length}.`
@@ -263,11 +308,9 @@ function parsePackage(bytes: Uint8Array, offset: number, warnings: string[]): Pa
 function rewriteTypeChunk(
   chunk: Uint8Array,
   splitKeyStrings: string[],
-  splitTableStrings: string[],
+  splitTableStringRemap: number[],
   baseKeyStrings: string[],
-  baseTableStrings: string[],
-  baseKeyIndex: Map<string, number>,
-  baseTableStringIndex: Map<string, number>
+  baseKeyIndex: Map<string, number>
 ): Uint8Array | null {
   const rewritten = new Uint8Array(chunk);
   const headerSize = readU16(rewritten, 2);
@@ -286,7 +329,7 @@ function rewriteTypeChunk(
     const sparseCount = Math.max(0, Math.floor((entriesStart - headerSize) / 4));
     for (let i = 0; i < sparseCount; i++) {
       const entryOffset = readU16(rewritten, offsetsStart + i * 4 + 2);
-      if (!rewriteEntry(rewritten, entriesStart + entryOffset * 4, splitKeyStrings, splitTableStrings, baseKeyStrings, baseTableStrings, baseKeyIndex, baseTableStringIndex)) {
+      if (!rewriteEntry(rewritten, entriesStart + entryOffset * 4, splitKeyStrings, splitTableStringRemap, baseKeyStrings, baseKeyIndex)) {
         return null;
       }
     }
@@ -296,7 +339,7 @@ function rewriteTypeChunk(
   if (offsetType === 0x02) {
     for (let i = 0; i < entryCount; i++) {
       const entryOffset = readU16(rewritten, offsetsStart + i * 2);
-      if (entryOffset !== 0xffff && !rewriteEntry(rewritten, entriesStart + entryOffset * 4, splitKeyStrings, splitTableStrings, baseKeyStrings, baseTableStrings, baseKeyIndex, baseTableStringIndex)) {
+      if (entryOffset !== 0xffff && !rewriteEntry(rewritten, entriesStart + entryOffset * 4, splitKeyStrings, splitTableStringRemap, baseKeyStrings, baseKeyIndex)) {
         return null;
       }
     }
@@ -305,7 +348,7 @@ function rewriteTypeChunk(
 
   for (let i = 0; i < entryCount; i++) {
     const entryOffset = readU32(rewritten, offsetsStart + i * 4);
-    if (entryOffset !== 0xffffffff && !rewriteEntry(rewritten, entriesStart + entryOffset, splitKeyStrings, splitTableStrings, baseKeyStrings, baseTableStrings, baseKeyIndex, baseTableStringIndex)) {
+    if (entryOffset !== 0xffffffff && !rewriteEntry(rewritten, entriesStart + entryOffset, splitKeyStrings, splitTableStringRemap, baseKeyStrings, baseKeyIndex)) {
       return null;
     }
   }
@@ -316,11 +359,9 @@ function rewriteEntry(
   bytes: Uint8Array,
   entryOffset: number,
   splitKeyStrings: string[],
-  splitTableStrings: string[],
+  splitTableStringRemap: number[],
   baseKeyStrings: string[],
-  baseTableStrings: string[],
-  baseKeyIndex: Map<string, number>,
-  baseTableStringIndex: Map<string, number>
+  baseKeyIndex: Map<string, number>
 ): boolean {
   if (entryOffset + 8 > bytes.length) {
     return false;
@@ -340,7 +381,7 @@ function rewriteEntry(
     const count = readU32(bytes, entryOffset + entrySize - 4);
     let cursor = entryOffset + entrySize;
     for (let i = 0; i < count; i++) {
-      if (cursor + 12 > bytes.length || !rewriteValue(bytes, cursor + 4, splitTableStrings, baseTableStrings, baseTableStringIndex)) {
+      if (cursor + 12 > bytes.length || !rewriteValue(bytes, cursor + 4, splitTableStringRemap)) {
         return false;
       }
       cursor += 12;
@@ -348,21 +389,21 @@ function rewriteEntry(
     return true;
   }
 
-  return rewriteValue(bytes, entryOffset + entrySize, splitTableStrings, baseTableStrings, baseTableStringIndex);
+  return rewriteValue(bytes, entryOffset + entrySize, splitTableStringRemap);
 }
 
-function rewriteValue(bytes: Uint8Array, offset: number, splitTableStrings: string[], baseTableStrings: string[], baseTableStringIndex: Map<string, number>): boolean {
+function rewriteValue(bytes: Uint8Array, offset: number, splitTableStringRemap: number[]): boolean {
   if (offset + 8 > bytes.length) {
     return false;
   }
   if (bytes[offset + 3] !== TYPE_STRING) {
     return true;
   }
-  const splitString = splitTableStrings[readU32(bytes, offset + 4)];
-  if (splitString === undefined) {
+  const mergedIndex = splitTableStringRemap[readU32(bytes, offset + 4)];
+  if (mergedIndex === undefined) {
     return false;
   }
-  writeU32(bytes, offset + 4, getOrAppend(baseTableStrings, baseTableStringIndex, splitString));
+  writeU32(bytes, offset + 4, mergedIndex);
   return true;
 }
 
@@ -387,7 +428,14 @@ function mergeTypeSpecChunk(baseSpec: Uint8Array | undefined, splitSpec: Uint8Ar
   return merged;
 }
 
-function rebuildPackage(baseBytes: Uint8Array, pkg: PackageChunk, keyStringPool: Uint8Array, typeSpecChunks: Map<number, Uint8Array>, appendedTypeChunks: Uint8Array[]): Uint8Array {
+function rebuildPackage(
+  baseBytes: Uint8Array,
+  pkg: PackageChunk,
+  keyStringPool: Uint8Array,
+  typeSpecChunks: Map<number, Uint8Array>,
+  remappedBaseTypeChunks: Map<number, Uint8Array>,
+  appendedTypeChunks: Uint8Array[]
+): Uint8Array {
   const pieces: Uint8Array[] = [];
   const header = new Uint8Array(baseBytes.slice(pkg.offset, pkg.offset + pkg.headerSize));
   pieces.push(header);
@@ -396,6 +444,8 @@ function rebuildPackage(baseBytes: Uint8Array, pkg: PackageChunk, keyStringPool:
       pieces.push(keyStringPool);
     } else if (child.type === RES_TABLE_TYPE_SPEC_TYPE) {
       pieces.push(typeSpecChunks.get(baseBytes[child.offset + 8]) ?? baseBytes.slice(child.offset, child.offset + child.size));
+    } else if (child.type === RES_TABLE_TYPE_TYPE) {
+      pieces.push(remappedBaseTypeChunks.get(child.offset) ?? baseBytes.slice(child.offset, child.offset + child.size));
     } else {
       pieces.push(baseBytes.slice(child.offset, child.offset + child.size));
     }
@@ -427,28 +477,60 @@ function rebuildTable(baseBytes: Uint8Array, base: ParsedTable, tableStringPool:
   return rebuilt;
 }
 
-function buildUtf8StringPool(strings: string[]): Uint8Array {
+function buildUtf8StringPool(strings: string[], styles: Array<StringPoolStyle | null>): Uint8Array {
   const encodedStrings = strings.map((value) => encodeUtf8PoolString(value));
+  const styleCount = lastStyledStringIndex(styles) + 1;
+  const encodedStyles = styles.slice(0, styleCount).map(encodeStyle);
   const headerSize = 28;
-  const offsetsSize = strings.length * 4;
+  const offsetsSize = (strings.length + styleCount) * 4;
   const stringsStart = headerSize + offsetsSize;
   const stringsSize = align4(encodedStrings.reduce((sum, value) => sum + value.length, 0));
-  const size = stringsStart + stringsSize;
+  const stylesStart = styleCount > 0 ? stringsStart + stringsSize : 0;
+  const stylesSize = styleCount > 0
+    ? encodedStyles.reduce((sum, value) => sum + (value?.length ?? 0), 0) + 8
+    : 0;
+  const size = stringsStart + stringsSize + stylesSize;
   const bytes = new Uint8Array(size);
   writeU16(bytes, 0, RES_STRING_POOL_TYPE);
   writeU16(bytes, 2, headerSize);
   writeU32(bytes, 4, size);
   writeU32(bytes, 8, strings.length);
-  writeU32(bytes, 12, 0);
+  writeU32(bytes, 12, styleCount);
   writeU32(bytes, 16, UTF8_FLAG);
   writeU32(bytes, 20, stringsStart);
-  writeU32(bytes, 24, 0);
+  writeU32(bytes, 24, stylesStart);
   let cursor = stringsStart;
   for (let i = 0; i < encodedStrings.length; i++) {
     writeU32(bytes, headerSize + i * 4, cursor - stringsStart);
     bytes.set(encodedStrings[i], cursor);
     cursor += encodedStrings[i].length;
   }
+  if (styleCount > 0) {
+    cursor = stylesStart;
+    for (let i = 0; i < styleCount; i++) {
+      const encoded = encodedStyles[i];
+      writeU32(bytes, headerSize + strings.length * 4 + i * 4, encoded ? cursor - stylesStart : 0xffffffff);
+      if (encoded) {
+        bytes.set(encoded, cursor);
+        cursor += encoded.length;
+      }
+    }
+    bytes.fill(0xff, cursor, cursor + 8);
+  }
+  return bytes;
+}
+
+function encodeStyle(style: StringPoolStyle | null): Uint8Array | null {
+  if (!style) {
+    return null;
+  }
+  const bytes = new Uint8Array(style.length * 12 + 4);
+  for (let i = 0; i < style.length; i++) {
+    writeU32(bytes, i * 12, style[i].nameIndex);
+    writeU32(bytes, i * 12 + 4, style[i].firstChar);
+    writeU32(bytes, i * 12 + 8, style[i].lastChar);
+  }
+  writeU32(bytes, style.length * 12, 0xffffffff);
   return bytes;
 }
 
@@ -470,9 +552,16 @@ function parseStringPool(bytes: Uint8Array, offset: number, warnings: string[]):
   const styleCount = readU32(bytes, offset + 12);
   const flags = readU32(bytes, offset + 16);
   const stringsStart = readU32(bytes, offset + 20);
+  const stylesStart = readU32(bytes, offset + 24);
   const isUtf8 = (flags & UTF8_FLAG) !== 0;
-  if (styleCount !== 0) {
-    warnings.push(`String pool at ${offset} has style spans, which are not supported by the browser ARSC merger yet.`);
+  const offsetsEnd = 28 + (stringCount + styleCount) * 4;
+  if (size < 28 || offset + size > bytes.length || stringsStart < offsetsEnd || stringsStart >= size) {
+    warnings.push(`Invalid string pool at ${offset}.`);
+    return { offset, size, strings: [], styles: [] };
+  }
+  if (styleCount > stringCount || (styleCount > 0 && (stylesStart < stringsStart || stylesStart >= size))) {
+    warnings.push(`Invalid styled string pool at ${offset}.`);
+    return { offset, size, strings: [], styles: [] };
   }
   const strings: string[] = [];
   for (let i = 0; i < stringCount; i++) {
@@ -480,7 +569,37 @@ function parseStringPool(bytes: Uint8Array, offset: number, warnings: string[]):
     const absoluteOffset = offset + stringsStart + stringOffset;
     strings.push(isUtf8 ? readUtf8String(bytes, absoluteOffset, offset + size) : readUtf16String(bytes, absoluteOffset, offset + size));
   }
-  return { offset, size, strings };
+  const styles: Array<StringPoolStyle | null> = Array.from({ length: stringCount }, () => null);
+  for (let i = 0; i < styleCount; i++) {
+    const relativeOffset = readU32(bytes, offset + 28 + stringCount * 4 + i * 4);
+    if (relativeOffset === 0xffffffff) {
+      continue;
+    }
+    const style = readStyle(bytes, offset + stylesStart + relativeOffset, offset + size, stringCount);
+    if (!style) {
+      warnings.push(`Invalid style spans for string ${i} in pool at ${offset}.`);
+      continue;
+    }
+    styles[i] = style;
+  }
+  return { offset, size, strings, styles };
+}
+
+function readStyle(bytes: Uint8Array, offset: number, end: number, stringCount: number): StringPoolStyle | null {
+  const style: StringPoolStyle = [];
+  let cursor = offset;
+  while (cursor + 4 <= end) {
+    const nameIndex = readU32(bytes, cursor);
+    if (nameIndex === 0xffffffff) {
+      return style;
+    }
+    if (cursor + 12 > end || nameIndex >= stringCount) {
+      return null;
+    }
+    style.push({ nameIndex, firstChar: readU32(bytes, cursor + 4), lastChar: readU32(bytes, cursor + 8) });
+    cursor += 12;
+  }
+  return null;
 }
 
 function readUtf8String(bytes: Uint8Array, offset: number, end: number): string {
@@ -533,6 +652,152 @@ function readUtf16Fixed(bytes: Uint8Array, offset: number, chars: number): strin
     result.push(code);
   }
   return String.fromCharCode(...result);
+}
+
+function cloneStyle(style: StringPoolStyle | null): StringPoolStyle | null {
+  return style?.map((span) => ({ ...span })) ?? null;
+}
+
+function normalizeStyledStringPool(
+  strings: string[],
+  styles: Array<StringPoolStyle | null>
+): { strings: string[]; styles: Array<StringPoolStyle | null>; remap: number[] } {
+  const order = strings.map((_value, index) => index).sort((left, right) => Number(!styles[left]) - Number(!styles[right]));
+  const remap = new Array<number>(strings.length);
+  order.forEach((oldIndex, newIndex) => {
+    remap[oldIndex] = newIndex;
+  });
+  return {
+    strings: order.map((index) => strings[index]),
+    styles: order.map((index) => styles[index]?.map((span) => ({ ...span, nameIndex: remap[span.nameIndex] })) ?? null),
+    remap
+  };
+}
+
+function remapTypeChunkStringValues(chunk: Uint8Array, tableStringRemap: number[]): Uint8Array | null {
+  const remapped = new Uint8Array(chunk);
+  const headerSize = readU16(remapped, 2);
+  const size = readU32(remapped, 4);
+  const flags = remapped[9];
+  const entryCount = readU32(remapped, 12);
+  const entriesStart = readU32(remapped, 16);
+  const offsetType = flags & 0x03;
+  if (size !== remapped.length) {
+    return null;
+  }
+  if (offsetType === 0x01) {
+    const sparseCount = Math.max(0, Math.floor((entriesStart - headerSize) / 4));
+    for (let i = 0; i < sparseCount; i++) {
+      if (!remapEntryStringValues(remapped, entriesStart + readU16(remapped, headerSize + i * 4 + 2) * 4, tableStringRemap)) {
+        return null;
+      }
+    }
+    return remapped;
+  }
+  if (offsetType === 0x02) {
+    for (let i = 0; i < entryCount; i++) {
+      const entryOffset = readU16(remapped, headerSize + i * 2);
+      if (entryOffset !== 0xffff && !remapEntryStringValues(remapped, entriesStart + entryOffset * 4, tableStringRemap)) {
+        return null;
+      }
+    }
+    return remapped;
+  }
+  for (let i = 0; i < entryCount; i++) {
+    const entryOffset = readU32(remapped, headerSize + i * 4);
+    if (entryOffset !== 0xffffffff && !remapEntryStringValues(remapped, entriesStart + entryOffset, tableStringRemap)) {
+      return null;
+    }
+  }
+  return remapped;
+}
+
+function remapEntryStringValues(bytes: Uint8Array, entryOffset: number, tableStringRemap: number[]): boolean {
+  if (entryOffset + 8 > bytes.length) {
+    return false;
+  }
+  const entrySize = readU16(bytes, entryOffset);
+  const flags = readU16(bytes, entryOffset + 2);
+  if ((flags & ENTRY_FLAG_COMPLEX) !== 0) {
+    if (entrySize < 16 || entryOffset + entrySize > bytes.length) {
+      return false;
+    }
+    const count = readU32(bytes, entryOffset + entrySize - 4);
+    let cursor = entryOffset + entrySize;
+    for (let i = 0; i < count; i++) {
+      if (cursor + 12 > bytes.length || !rewriteValue(bytes, cursor + 4, tableStringRemap)) {
+        return false;
+      }
+      cursor += 12;
+    }
+    return true;
+  }
+  return rewriteValue(bytes, entryOffset + entrySize, tableStringRemap);
+}
+
+function styledStringKey(pool: StringPoolChunk, index: number): string {
+  const style = pool.styles[index];
+  if (!style) {
+    return JSON.stringify([pool.strings[index], null]);
+  }
+  return JSON.stringify([
+    pool.strings[index],
+    style.map((span) => [pool.strings[span.nameIndex], span.firstChar, span.lastChar])
+  ]);
+}
+
+function indexStyledStrings(pool: StringPoolChunk): Map<string, number> {
+  const map = new Map<string, number>();
+  pool.strings.forEach((_value, index) => {
+    const key = styledStringKey(pool, index);
+    if (!map.has(key)) {
+      map.set(key, index);
+    }
+  });
+  return map;
+}
+
+function mergeStyledStringPool(
+  split: StringPoolChunk,
+  mergedStrings: string[],
+  mergedStyles: Array<StringPoolStyle | null>,
+  mergedIndex: Map<string, number>
+): number[] {
+  const remap = new Array<number>(split.strings.length);
+  const appended: number[] = [];
+  for (let i = 0; i < split.strings.length; i++) {
+    const key = styledStringKey(split, i);
+    const existing = mergedIndex.get(key);
+    if (existing !== undefined) {
+      remap[i] = existing;
+      continue;
+    }
+    const next = mergedStrings.length;
+    remap[i] = next;
+    appended.push(i);
+    mergedStrings.push(split.strings[i]);
+    mergedStyles.push(null);
+    mergedIndex.set(key, next);
+  }
+  for (const splitIndex of appended) {
+    const style = split.styles[splitIndex];
+    if (style) {
+      mergedStyles[remap[splitIndex]] = style.map((span) => ({
+        ...span,
+        nameIndex: remap[span.nameIndex]
+      }));
+    }
+  }
+  return remap;
+}
+
+function lastStyledStringIndex(styles: Array<StringPoolStyle | null>): number {
+  for (let i = styles.length - 1; i >= 0; i--) {
+    if (styles[i]) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 function indexStrings(strings: string[]): Map<string, number> {

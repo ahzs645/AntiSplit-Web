@@ -4,7 +4,7 @@ import { inspectPackage, mergePackage } from "../src/mergeCore";
 import { generateV4Sidecar, verifyV4Sidecar } from "../src/apkV4Sidecar";
 import { verifyWithBundledApkSig } from "./java-apksig";
 
-const fixturePath = process.argv[2] ?? "/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk";
+const fixturePath = process.argv[2] ?? "/Users/ahmadjalil/Downloads/iHunter+BC_5.0.69_APKPure.xapk";
 const bytes = await readFile(fixturePath);
 const input = [{ name: basename(fixturePath), bytes: new Uint8Array(bytes) }];
 const inspect = inspectPackage(input);

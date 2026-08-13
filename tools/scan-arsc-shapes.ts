@@ -29,7 +29,16 @@ const reportIndex = args.indexOf("--report");
 const reportPath = reportIndex >= 0 ? args[reportIndex + 1] : undefined;
 const manifestIndex = args.indexOf("--manifest");
 const manifestPath = manifestIndex >= 0 ? args[manifestIndex + 1] : undefined;
-const directInputs = args.filter((arg, index) => index !== reportIndex && index !== reportIndex + 1 && index !== manifestIndex && index !== manifestIndex + 1);
+const optionValueIndexes = new Set<number>();
+if (reportIndex >= 0) {
+  optionValueIndexes.add(reportIndex);
+  optionValueIndexes.add(reportIndex + 1);
+}
+if (manifestIndex >= 0) {
+  optionValueIndexes.add(manifestIndex);
+  optionValueIndexes.add(manifestIndex + 1);
+}
+const directInputs = args.filter((_arg, index) => !optionValueIndexes.has(index));
 const manifestInputs = manifestPath ? await readManifest(manifestPath) : [];
 const inputs = [...new Set([...directInputs, ...manifestInputs])];
 
@@ -100,7 +109,10 @@ function extractApks(path: string, bytes: Uint8Array): Array<{ name: string; byt
 }
 
 function chooseBase(apks: Array<{ name: string; bytes: Uint8Array }>): { name: string; bytes: Uint8Array } | null {
-  return apks.find((apk) => !basename(apk.name).startsWith("config.") && !basename(apk.name).startsWith("split.")) ?? apks[0] ?? null;
+  return apks.find((apk) => {
+    const name = basename(apk.name);
+    return !name.startsWith("config.") && !name.startsWith("split.") && !name.startsWith("split_");
+  }) ?? apks[0] ?? null;
 }
 
 function inspectApk(name: string, apkBytes: Uint8Array, role: ApkShape["role"]): ApkShape {
@@ -113,9 +125,6 @@ function inspectApk(name: string, apkBytes: Uint8Array, role: ApkShape["role"]):
   const unsupported: string[] = [];
   if (shape.packageCount !== 1) {
     unsupported.push(`multi-package table (${shape.packageCount} package(s))`);
-  }
-  if (shape.styledStringPoolCount > 0) {
-    unsupported.push(`${shape.styledStringPoolCount} styled string pool(s) require span remapping`);
   }
   return { name, role, hasResources: true, ...shape, unsupported };
 }

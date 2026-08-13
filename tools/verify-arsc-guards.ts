@@ -3,7 +3,7 @@ import { basename } from "node:path";
 import { unzipSync, zipSync } from "fflate";
 import { tryMergeResourceTables } from "../src/arscMerger";
 
-const fixturePath = process.argv[2] ?? "/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk";
+const fixturePath = process.argv[2] ?? "/Users/ahmadjalil/Downloads/iHunter+BC_5.0.69_APKPure.xapk";
 
 type GuardCase = {
   name: string;
@@ -117,12 +117,12 @@ async function main(): Promise<void> {
 
   const cases: GuardCase[] = [
     {
-      name: "styled-string-pool-split.apk",
+      name: "malformed-styled-string-pool-split.apk",
       splitBytes: replaceResourceTable(splitBytes, (resources) => {
         const tableStringPoolOffset = readU16(resources, 2);
         writeU32(resources, tableStringPoolOffset + 12, 1);
       }),
-      expectedUnsupported: "style spans"
+      expectedUnsupported: "Invalid string pool"
     },
     {
       name: "multi-package-split.apk",

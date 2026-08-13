@@ -354,11 +354,22 @@ function chooseBaseApk(apks: ApkInput[]): ApkInput {
 
 function roleForApk(name: string, size: number): ApkInput["role"] {
   const basename = name.split("/").pop() ?? name;
-  if (basename === "base.apk" || (!basename.startsWith("config.") && !basename.startsWith("split.") && size > 1024 * 1024)) {
+  if (basename === "base.apk") {
     return "base";
   }
-  if (basename.startsWith("config.") || basename.startsWith("split.")) {
+  // Android App Bundle / APKMirror splits are named "split_<name>.apk"; older
+  // tools emit "config.<name>.apk" or "split.<name>.apk". Classify all of these
+  // as non-base config splits so a large split (e.g. a Unity asset pack) is not
+  // mistaken for the base APK.
+  if (
+    basename.startsWith("config.") ||
+    basename.startsWith("split.") ||
+    basename.startsWith("split_")
+  ) {
     return "config";
+  }
+  if (size > 1024 * 1024) {
+    return "base";
   }
   return "unknown";
 }

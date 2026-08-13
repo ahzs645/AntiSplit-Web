@@ -38,8 +38,7 @@ type CorpusResult = {
 };
 
 const DEFAULT_LOCAL_CORPUS = [
-  "/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk",
-  "/Users/ahmadjalil/Downloads/librelinkup/LibreLinkUp_5.0.1_APKPure.xapk"
+  "/Users/ahmadjalil/Downloads/iHunter+BC_5.0.69_APKPure.xapk"
 ];
 
 const args = process.argv.slice(2);

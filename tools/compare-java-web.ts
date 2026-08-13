@@ -29,7 +29,7 @@ type JavaWebReport = {
   findings: string[];
 };
 
-const fixturePath = process.argv[2] ?? "/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk";
+const fixturePath = process.argv[2] ?? "/Users/ahmadjalil/Downloads/iHunter+BC_5.0.69_APKPure.xapk";
 const outputDir = "dist-fixtures";
 const sampleSlug = safeName(fixturePath);
 const javaOutputPath = join(outputDir, `${sampleSlug}_java_antisplit_unsigned.apk`);
@@ -71,10 +71,8 @@ const jsonPath = join("docs", `java-web-comparison-${sampleSlug}.json`);
 await mkdir("docs", { recursive: true });
 await writeFile(markdownPath, renderMarkdown(report));
 await writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
-if (sampleSlug === "REON_POCKET_2.2.0_APKPure") {
-  await writeFile("docs/java-web-comparison.md", renderMarkdown(report));
-  await writeFile("docs/java-web-comparison.json", `${JSON.stringify(report, null, 2)}\n`);
-}
+await writeFile("docs/java-web-comparison.md", renderMarkdown(report));
+await writeFile("docs/java-web-comparison.json", `${JSON.stringify(report, null, 2)}\n`);
 
 console.log(JSON.stringify(report, null, 2));
 console.log(`Wrote ${markdownPath}`);

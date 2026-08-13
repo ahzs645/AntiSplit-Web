@@ -7,8 +7,8 @@ For the current requirement-by-requirement evidence audit, see `docs/parity-audi
 ## Current Verified Baseline
 
 - The web app runs as a static Vite/React app and performs merging in a Web Worker.
-- `/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk` passes `npm run verify:fixture`.
-- The REON fixture merges base, ABI, language, and density splits with no unsupported scope.
+- `/Users/ahmadjalil/Downloads/iHunter+BC_5.0.69_APKPure.xapk` passes `npm run verify:fixture`.
+- The iHunter fixture merges one base plus 19 ABI, language, and density splits with no unsupported scope.
 - The generated APK is JAR/v1 signed with the embedded debug key.
 
 ## Workstreams
@@ -24,7 +24,7 @@ Deliverables:
 - `npm run audit:parity`
 - `npm run verify:environment`
 - `npm run scan:arsc -- --manifest docs/local-corpus-manifest.txt --report docs/arsc-shape-report.md`
-- `npm run compare:java-web` for a repeatable REAndroid-vs-web baseline on the local REON fixture.
+- `npm run compare:java-web` for a repeatable REAndroid-vs-web baseline on the local iHunter fixture.
 - A growing sample set covering `.xapk`, `.apks`, `.apkm`, plain `.zip`, standalone `.apk`, ABI splits, density splits, language splits, and feature splits.
 - Failure classification for resource-table, manifest, signing, ZIP/alignment, and browser-platform limitations.
 
@@ -33,7 +33,7 @@ Exit criteria:
 - Every failure has a stable unsupported reason or an implementation issue.
 - Fixture and corpus checks are documented in `docs/corpus-results.md`.
 
-Current REAndroid comparison:
+Historical REAndroid comparison:
 - `npm run compare:java-web` writes `docs/java-web-comparison.md` and `docs/java-web-comparison-REON_POCKET_2.2.0_APKPure.md`.
 - `npm run compare:java-web -- /Users/ahmadjalil/Downloads/librelinkup/LibreLinkUp_5.0.1_APKPure.xapk` writes `docs/java-web-comparison-LibreLinkUp_5.0.1_APKPure.md`.
 - In both current comparisons, the raw local Java/REAndroid merge output carries the original APK Signing Block, but its v2 digest does not verify after merging.
@@ -41,29 +41,28 @@ Current REAndroid comparison:
 
 Current corpus scope:
 - `npm run verify:corpus -- --report docs/corpus-results.md` checks both `v1` and `v1-v2` signing modes against the known local fixture corpus files that exist on this machine.
-- `docs/local-corpus-manifest.txt` lists the independent local split-container samples one per line. `npm run verify:corpus -- --manifest docs/local-corpus-manifest.txt --report docs/corpus-manifest-results.md` verifies exactly that explicit set and currently passes 2/2.
+- `docs/local-corpus-manifest.txt` lists the independent local split-container samples one per line. It currently contains the available iHunter fixture.
 - Directory inputs are scanned recursively for `.xapk`, `.apks`, `.apkm`, `.zip`, and `.apk` files.
-- `npm run discover:corpus -- /Users/ahmadjalil/Downloads --report docs/corpus-inventory.md` currently reports 3 usable archive samples out of 27 ZIP/APK-like files: the two XAPK split containers plus `/Users/ahmadjalil/Downloads/librelinkup/unpacked/org.nativescript.LibreLinkUp.apk`.
+- `npm run discover:corpus -- /Users/ahmadjalil/Downloads --report docs/corpus-inventory.md` can be regenerated to inventory the currently available iHunter fixture and any future samples.
 - `npm run discover:corpus -- /Users/ahmadjalil/Downloads /Users/ahmadjalil/Desktop /Users/ahmadjalil/Documents /Users/ahmadjalil/github/AntiSplit-Web --report docs/targeted-corpus-inventory.md` reports 3 usable independent samples out of 51 ZIP/APK-like files after classifying generated `dist-fixtures/` APKs as debug outputs rather than corpus samples.
 - The corpus report records bundled Java apksig status for each signing mode (`ok v1`, `ok v2`, `ok v3`, and `ok v4` where applicable) and Android SDK `apksigner` status for v2/v3 APK outputs when build-tools are available.
 - The corpus report classifies warnings and failures into stable buckets: `resource-table`, `manifest`, `signing`, `zip-alignment`, `browser-platform`, or `general`.
-- Two local corpus samples are currently available and passing in both `v1` and `v1-v2` modes: `/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk` and `/Users/ahmadjalil/Downloads/librelinkup/LibreLinkUp_5.0.1_APKPure.xapk`.
+- The current local corpus sample passes both `v1` and `v1-v2`: `/Users/ahmadjalil/Downloads/iHunter+BC_5.0.69_APKPure.xapk`.
 - The unpacked LibreLinkUp base APK also passes as a standalone APK in `docs/corpus-standalone-results.md`; it is useful for the single-APK path but does not expand independent split-package coverage.
 
 ### 2. Resource Table Coverage
 
 Current coverage:
 - Single-package resource tables.
-- Current manifest corpus has no styled string pools, multi-package resource tables, or split type IDs absent from the base type string pool according to `docs/arsc-shape-report.md`.
+- Styled string pools are preserved and their span-name indices are remapped when pools are combined; styled strings are normalized to the contiguous prefix required by Android's resource parser.
 - Type-spec flag merging.
 - Standard, compact-offset, and sparse type chunks.
 - Complex map entries whose entry header size includes the parent/count fields.
 - Key string-pool remapping.
 - Table-level `TYPE_STRING` value remapping.
-- Guard regression coverage with `npm run verify:arsc-guards`, which mutates the REON fixture into unsupported styled-string-pool, multi-package, and missing-base-type-ID shapes and verifies that each fails closed with a specific diagnostic.
+- Guard regression coverage with `npm run verify:arsc-guards`, which mutates the iHunter fixture into malformed-string-pool, multi-package, and missing-base-type-ID shapes and verifies that each fails closed with a specific diagnostic.
 
 Remaining targets:
-- Styled string pools with span preservation.
 - Multi-package resource tables.
 - Type IDs absent from the base type string pool.
 - Additional chunk layouts discovered by corpus runs.
@@ -71,7 +70,7 @@ Remaining targets:
 Policy:
 - Merge only when structural guards pass.
 - Fail closed with specific diagnostics when a table shape is unsupported.
-- Failed ARSC merge attempts now surface concrete unsupported reasons in `result.unsupported`, including styled string pools, multi-package tables, package identity mismatches, missing type IDs, and malformed chunks. This is intended to make corpus failures directly actionable.
+- Failed ARSC merge attempts surface concrete unsupported reasons in `result.unsupported`, including malformed string pools, multi-package tables, package identity mismatches, missing type IDs, and malformed chunks. This is intended to make corpus failures directly actionable.
 
 ### 3. APK Signature Scheme v2
 
@@ -84,7 +83,7 @@ Planned shape:
 - Verify generated APKs with Android `apksigner verify --verbose` when the Android build tools are available.
 
 Current v2 status:
-- `npm run verify:v2-fixture` writes `dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit_v2.apk`.
+- `npm run verify:v2-fixture` writes `dist-fixtures/iHunter+BC_5.0.69_APKPure_antisplit_v2.apk`.
 - The browser verifier detects an APK Signature Scheme v2 pair (`0x7109871a`) in the APK Signing Block.
 - `npm run verify:v2-fixture` asserts the generated web APK Signing Block contains exactly one fresh v2 pair and no stale v3/v3.1/source-stamp pairs carried from the source APK.
 - `src/apkV2Verifier.ts` recomputes the v2 chunked SHA-256 content digest and verifies the RSA/SHA-256 signature over v2 signed-data for the generated fixture.

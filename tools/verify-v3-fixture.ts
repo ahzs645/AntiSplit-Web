@@ -7,7 +7,7 @@ import { verifyV3Signature } from "../src/apkV3Verifier";
 import { verifyWithApkSigner } from "./apksigner";
 import { verifyWithBundledApkSig } from "./java-apksig";
 
-const fixturePath = process.argv[2] ?? "/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk";
+const fixturePath = process.argv[2] ?? "/Users/ahmadjalil/Downloads/iHunter+BC_5.0.69_APKPure.xapk";
 const bytes = await readFile(fixturePath);
 const input = [{ name: basename(fixturePath), bytes: new Uint8Array(bytes) }];
 const inspect = inspectPackage(input);

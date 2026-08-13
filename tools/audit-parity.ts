@@ -22,8 +22,7 @@ const inventory = await readJson<any>("docs/corpus-inventory.json");
 const targetedInventory = await readJson<any>("docs/targeted-corpus-inventory.json");
 const environment = await readJson<any>("docs/environment-check.json");
 const arscShapes = await readJson<any>("docs/arsc-shape-report.json");
-const reonCompare = await readJson<any>("docs/java-web-comparison-REON_POCKET_2.2.0_APKPure.json");
-const libreCompare = await readJson<any>("docs/java-web-comparison-LibreLinkUp_5.0.1_APKPure.json");
+const ihunterCompare = await readJson<any>("docs/java-web-comparison-iHunter_BC_5.0.69_APKPure.json");
 
 const items: AuditItem[] = [
   {
@@ -33,10 +32,10 @@ const items: AuditItem[] = [
     note: stepOk("Build static web app") ? "Latest parity run includes a passing production build." : "Latest parity run does not prove a passing build."
   },
   {
-    requirement: "REON fixture merges and verifies.",
-    status: stepOk("Verify REON fixture") ? "proven" : "missing",
+    requirement: "iHunter fixture merges and verifies.",
+    status: stepOk("Verify iHunter fixture") ? "proven" : "missing",
     evidence: ["docs/parity-run.json", "npm run verify:fixture"],
-    note: stepOk("Verify REON fixture") ? "Fixture gate passed with no unsupported scope." : "Fixture gate missing or failed."
+    note: stepOk("Verify iHunter fixture") ? "Fixture gate passed with styled string-span preservation and no unsupported scope." : "Fixture gate missing or failed."
   },
   {
     requirement: "Corpus-confidence tooling and reports exist.",
@@ -51,7 +50,7 @@ const items: AuditItem[] = [
     note: `${independentSplitContainerCount()} independent split-container sample(s), ${standalone?.summary?.passed ?? 0} local standalone APK sample(s), and ${fdroidCorpus?.summary?.passed ?? 0} F-Droid APK sample(s) are verified; targeted inventory found ${targetedInventory?.summary?.usable ?? 0} usable independent local sample(s) after excluding generated outputs; target is at least 20 independent mixed samples.`
   },
   {
-    requirement: "Guarded resources.arsc support covers current real corpus and fails closed for styled strings, multi-package tables, and missing base type IDs.",
+    requirement: "Guarded resources.arsc support covers current real corpus, preserves styled strings, and fails closed for malformed pools, multi-package tables, and missing base type IDs.",
     status: stepOk("Verify ARSC unsupported guards") && corpusAllPassing() && standaloneAllPassing() && arscShapes?.summary?.passed === arscShapes?.summary?.total ? "proven" : "partial",
     evidence: ["docs/parity-run.json", "npm run verify:arsc-guards", "npm run scan:arsc -- --manifest docs/local-corpus-manifest.txt --report docs/arsc-shape-report.md", "docs/corpus-results.json", "docs/arsc-shape-report.json"],
     note: stepOk("Verify ARSC unsupported guards") && corpusAllPassing() && standaloneAllPassing() && arscShapes?.summary?.passed === arscShapes?.summary?.total
@@ -77,14 +76,14 @@ const items: AuditItem[] = [
     status: stepOk("Verify v3 signing fixture") && v3CorpusSigningOk() && corpusApkSignerOk(v3Corpus, "v1-v2-v3") && stepOk("Verify v4 sidecar fixture") && v4CorpusSigningOk() ? "proven" : "partial",
     evidence: ["src/apkVerification.ts", "src/apkV3Verifier.ts", "src/apkV4Sidecar.ts", "npm run verify:v3-fixture", "npm run verify:v4-fixture", "docs/corpus-v3-results.json", "docs/corpus-v4-results.json", "docs/parity-audit.md", "docs/signing-v3-v4-feasibility.md"],
     note: stepOk("Verify v3 signing fixture") && v3CorpusSigningOk() && corpusApkSignerOk(v3Corpus, "v1-v2-v3") && stepOk("Verify v4 sidecar fixture") && v4CorpusSigningOk()
-      ? "Browser-side v3.0 signing and v4 .idsig sidecar generation verify on the REON fixture and current split-container corpus with bundled Java apksig verification; v3 corpus outputs also verify with Android SDK apksigner when installed."
+      ? "Browser-side v3.0 signing and v4 .idsig sidecar generation verify on the current fixture and split-container corpus with bundled Java apksig verification; v3 corpus outputs also verify with Android SDK apksigner when installed."
       : "v3/v4 signing evidence is incomplete; run the v3 and v4 fixture/corpus gates."
   },
   {
     requirement: "Java/REAndroid comparison against available samples.",
-    status: compareOk(reonCompare) && compareOk(libreCompare) ? "proven" : "partial",
-    evidence: ["docs/java-web-comparison-REON_POCKET_2.2.0_APKPure.json", "docs/java-web-comparison-LibreLinkUp_5.0.1_APKPure.json"],
-    note: "Both comparisons show Java carrying stale unverifiable signing-block material while web v2 output verifies."
+    status: compareOk(ihunterCompare) ? "proven" : "partial",
+    evidence: ["docs/java-web-comparison-iHunter_BC_5.0.69_APKPure.json"],
+    note: "The current iHunter comparison checks REAndroid output against unsigned and freshly v2-signed web outputs."
   },
   {
     requirement: "Browser-impossible Android installed-app extraction and install intents are documented with alternatives.",

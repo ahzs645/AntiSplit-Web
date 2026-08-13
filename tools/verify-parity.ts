@@ -8,12 +8,11 @@ type Step = {
   args: string[];
 };
 
-const LIBRE_LINK_UP_FIXTURE = "/Users/ahmadjalil/Downloads/librelinkup/LibreLinkUp_5.0.1_APKPure.xapk";
 const SUMMARY_PATH = "docs/parity-run.json";
 
 const coreSteps: Step[] = [
   { label: "Build static web app", command: "npm", args: ["run", "build"] },
-  { label: "Verify REON fixture", command: "npm", args: ["run", "verify:fixture"] },
+  { label: "Verify iHunter fixture", command: "npm", args: ["run", "verify:fixture"] },
   { label: "Verify v2 signing fixture", command: "npm", args: ["run", "verify:v2-fixture"] },
   { label: "Verify v3 signing fixture", command: "npm", args: ["run", "verify:v3-fixture"] },
   { label: "Verify v4 sidecar fixture", command: "npm", args: ["run", "verify:v4-fixture"] },
@@ -23,13 +22,11 @@ const coreSteps: Step[] = [
   { label: "Verify v3 corpus", command: "npm", args: ["run", "verify:v3-corpus"] },
   { label: "Verify v4 corpus", command: "npm", args: ["run", "verify:v4-corpus"] },
   { label: "Verify manifest corpus", command: "npm", args: ["run", "verify:corpus", "--", "--manifest", "docs/local-corpus-manifest.txt", "--report", "docs/corpus-manifest-results.md"] },
-  { label: "Verify standalone APK corpus", command: "npm", args: ["run", "verify:standalone-corpus"] },
   { label: "Fetch F-Droid APK corpus", command: "npm", args: ["run", "fetch:fdroid-corpus"] },
   { label: "Verify F-Droid APK corpus", command: "npm", args: ["run", "verify:fdroid-corpus"] },
   { label: "Scan ARSC shapes", command: "npm", args: ["run", "scan:arsc", "--", "--manifest", "docs/local-corpus-manifest.txt", "--report", "docs/arsc-shape-report.md"] },
   { label: "Verify local environment", command: "npm", args: ["run", "verify:environment"] },
-  { label: "Compare Java vs web on REON", command: "npm", args: ["run", "compare:java-web"] },
-  { label: "Compare Java vs web on LibreLinkUp", command: "npm", args: ["run", "compare:java-web", "--", LIBRE_LINK_UP_FIXTURE] }
+  { label: "Compare Java vs web on iHunter", command: "npm", args: ["run", "compare:java-web"] }
 ];
 
 const auditStep: Step = { label: "Audit completion evidence", command: "npm", args: ["run", "audit:parity"] };

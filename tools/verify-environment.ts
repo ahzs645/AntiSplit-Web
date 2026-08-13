@@ -19,7 +19,7 @@ const sdkRoots = [
   join(process.env.HOME ?? "", "Android", "Sdk")
 ].filter((value, index, values): value is string => Boolean(value) && values.indexOf(value) === index);
 
-const apksignerProbeApk = "dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit_v2.apk";
+const apksignerProbeApk = "dist-fixtures/iHunter+BC_5.0.69_APKPure_antisplit_v2.apk";
 const apksigner = await verifyWithApkSigner(apksignerProbeApk);
 const sdkmanager = await findCommand("sdkmanager");
 const java = await findCommand("java");

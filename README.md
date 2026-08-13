@@ -176,7 +176,7 @@ npm run verify:corpus -- /path/to/apk-samples --signing=v2
 
 The remaining parity work is tracked in [`docs/parity-plan.md`](docs/parity-plan.md), with a durable requirement-by-requirement audit in [`docs/parity-audit.md`](docs/parity-audit.md). Machine-readable run reports such as `docs/parity-completion-audit.json`, `docs/corpus-results.json`, and inventory reports are generated locally and intentionally ignored.
 
-The current local corpus baseline is two XAPK samples, REON POCKET and LibreLinkUp, both passing in `JAR/v1`, `JAR/v1 + v2`, `JAR/v1 + v2 + v3`, and `JAR/v1 + v2 + v3 + v4 sidecar` modes where applicable.
+The current local corpus baseline is iHunter BC 5.0.69. Its 20-APK XAPK passes `JAR/v1` and `JAR/v1 + v2`; the modern v2 output also passes bundled Java apksig, Android SDK `apksigner`, and an `aapt2 dump resources` parse with no resource warnings.
 
 The latest local targeted inventory found 20 usable independent samples out of 102 ZIP/APK-like files after excluding generated fixture APKs: 2 split containers, 1 local standalone APK, and 17 downloaded F-Droid standalone APKs. Regenerate the standalone and F-Droid corpus reports with `npm run verify:standalone-corpus` and `npm run verify:fdroid-corpus`.
 
@@ -190,7 +190,7 @@ The local Java/REAndroid merge path can be compared against the web merger with:
 npm run compare:java-web
 ```
 
-This compiles `tools/java/CompareJavaMerge.java`, runs the local REAndroid merger on the REON fixture, generates unsigned and v1+v2 web outputs, and writes generated Markdown/JSON reports under `docs/`. The same tool can be run against another sample, for example:
+This compiles `tools/java/CompareJavaMerge.java`, runs the local REAndroid merger on the current iHunter fixture, generates unsigned and v1+v2 web outputs, and writes generated Markdown/JSON reports under `docs/`. The same tool can be run against another sample, for example:
 
 ```sh
 npm run compare:java-web -- /path/to/sample.xapk
@@ -212,7 +212,7 @@ An experimental APK Signature Scheme v2 fixture path is available:
 npm run verify:v2-fixture
 ```
 
-It writes `dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit_v2.apk`, verifies that an APK Signing Block with exactly one fresh v2 pair is present, verifies that stale v3/v3.1/source-stamp pairs were not carried forward, recomputes the v2 content digest, and verifies the RSA/SHA-256 signature over v2 signed-data. It also compiles and runs the bundled Java `com.android.apksig.ApkVerifier` against the generated APK for Android 7.0+ verification, where v2 is supported. When Android SDK `apksigner` is available on PATH or under `ANDROID_HOME`/`ANDROID_SDK_ROOT`, the same command also runs `apksigner verify --verbose`. The v3/v4 follow-up scope is tracked in `docs/signing-v3-v4-feasibility.md`.
+It writes `dist-fixtures/iHunter+BC_5.0.69_APKPure_antisplit_v2.apk`, verifies that an APK Signing Block with exactly one fresh v2 pair is present, verifies that stale v3/v3.1/source-stamp pairs were not carried forward, recomputes the v2 content digest, and verifies the RSA/SHA-256 signature over v2 signed-data. It also compiles and runs the bundled Java `com.android.apksig.ApkVerifier` against the generated APK for Android 7.0+ verification, where v2 is supported. When Android SDK `apksigner` is available on PATH or under `ANDROID_HOME`/`ANDROID_SDK_ROOT`, the same command also runs `apksigner verify --verbose`. The v3/v4 follow-up scope is tracked in `docs/signing-v3-v4-feasibility.md`.
 
 A minimal APK Signature Scheme v3 fixture path is available:
 
@@ -220,7 +220,7 @@ A minimal APK Signature Scheme v3 fixture path is available:
 npm run verify:v3-fixture
 ```
 
-It writes `dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit_v3.apk`, verifies fresh v2 and v3 pairs, recomputes the v3 content digest, verifies the RSA/SHA-256 signature over v3 signed-data, checks tamper-negative cases, compiles/runs bundled Java apksig for Android 9.0+ v3 verification, and runs Android SDK `apksigner verify --verbose` when available.
+It writes `dist-fixtures/iHunter+BC_5.0.69_APKPure_antisplit_v3.apk`, verifies fresh v2 and v3 pairs, recomputes the v3 content digest, verifies the RSA/SHA-256 signature over v3 signed-data, checks tamper-negative cases, compiles/runs bundled Java apksig for Android 9.0+ v3 verification, and runs Android SDK `apksigner verify --verbose` when available.
 
 An APK Signature Scheme v4 sidecar fixture path is available:
 
@@ -228,7 +228,7 @@ An APK Signature Scheme v4 sidecar fixture path is available:
 npm run verify:v4-fixture
 ```
 
-It writes `dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit_v4.apk` plus `dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit_v4.apk.idsig`, verifies the sidecar root hash, verity tree, APK digest, and RSA/SHA-256 signature in browser, checks tamper-negative cases, and compiles/runs bundled Java apksig with the sidecar.
+It writes `dist-fixtures/iHunter+BC_5.0.69_APKPure_antisplit_v4.apk` plus `dist-fixtures/iHunter+BC_5.0.69_APKPure_antisplit_v4.apk.idsig`, verifies the sidecar root hash, verity tree, APK digest, and RSA/SHA-256 signature in browser, checks tamper-negative cases, and compiles/runs bundled Java apksig with the sidecar.
 
 The web UI exposes signing as:
 
@@ -238,47 +238,46 @@ The web UI exposes signing as:
 - `JAR/v1 + experimental v2/v3 + v4 sidecar` for browser-verified v2/v3 output plus a downloadable `.idsig`.
 - `Unsigned` for workflows that will sign externally.
 
-It uses `/Users/ahmadjalil/Downloads/REON+POCKET_2.2.0_APKPure.xapk` and writes:
+It uses `/Users/ahmadjalil/Downloads/iHunter+BC_5.0.69_APKPure.xapk` and writes:
 
 ```text
-dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit.apk
+dist-fixtures/iHunter+BC_5.0.69_APKPure_antisplit.apk
 ```
 
-Current observed result on June 13, 2026:
+Current observed result on August 13, 2026:
 
-- Input: one base APK plus `config.armeabi_v7a.apk`, `config.en.apk`, and `config.mdpi.apk`.
-- Output ZIP/APK: `23,308,826` bytes.
-- Runtime through the shared merge core: about `7-8s` in Node on this machine for REON JAR/v1 output, including manifest cleanup, client-side JAR/v1 signing, resource-table diagnostics, and native-library alignment.
-- `unzip -t dist-fixtures/REON+POCKET_2.2.0_APKPure_antisplit.apk` reports no compressed-data errors.
+- Input: one base APK plus 19 ABI, density, and language splits.
+- Output ZIP/APK: about `171 MB` (`170,977,420` bytes in the latest JAR/v1 verification run).
+- Runtime through the shared merge core: about `12-13s` in Node on this machine for iHunter JAR/v1 output, including manifest cleanup, styled resource-table merging, client-side signing, and native-library alignment.
+- `unzip -t dist-fixtures/iHunter+BC_5.0.69_APKPure_antisplit.apk` reports no compressed-data errors.
 - `openssl pkcs7 -inform DER -in META-INF/ANTISPLT.RSA -print_certs` parses the generated signature block and reports a self-signed `AntiSplit Web Debug` certificate with serial `4153574542000001`.
 - Browser-compatible verification reports:
   - `AndroidManifest.xml` exists and has an Android binary XML header.
   - At least one DEX file exists.
   - Existing JAR signature files were removed from `META-INF`.
   - New `META-INF/MANIFEST.MF`, `META-INF/ANTISPLT.SF`, and `META-INF/ANTISPLT.RSA` JAR/v1 signature files were added.
-  - The two native library entries are stored uncompressed and 4096-byte aligned.
+  - All six native library entries are stored uncompressed and 4096-byte aligned.
   - Two base-manifest split attributes, `requiredSplitTypes` and `splitTypes`, were removed.
   - Two base-manifest split meta-data elements, `com.android.vending.splits.required` and `com.android.vending.splits`, were removed.
   - Play split metadata XML payloads such as `res/xml/splits0.xml` are preserved so resource-table file references remain satisfiable.
 - Resource-table diagnostics report:
-  - Base APK: `365.0 KB resources.arsc`, 61 type config chunks, 3969 populated entries.
-  - `config.mdpi.apk`: `29.4 KB resources.arsc`, 6 type config chunks, 201 populated entries, configs `default`, `mdpi`, `hdpi`, `xhdpi`, `anydpi`.
-  - `config.en.apk`: `71.1 KB resources.arsc`, 5 type config chunks, 635 populated entries, configs `en-rCA`, `en-rGB`, `en-rXC`, `en-rIN`, `en-rAU`.
-  - The browser merger rewrites package key string indices and table-level `TYPE_STRING` value indices, merges split strings into the base pools, merges type-spec flags, and appends 11 split type chunks.
+  - Base APK: `1.1 MB resources.arsc`, 68 type config chunks, 11,223 populated entries, and a styled table string pool.
+  - `config.xhdpi.apk`: `81.9 KB resources.arsc`, 5 type config chunks, and 572 populated entries.
+  - `config.fr.apk`: `224.2 KB resources.arsc`, 7 type config chunks, 2,135 populated entries, and styled strings that must be merged into the base pool.
+  - The browser merger rewrites package key and table-level `TYPE_STRING` indices, preserves and remaps style spans, merges type-spec flags, and appends 118 split type chunks.
   - Sparse and compact offset type chunks are handled by the same rewrite path; malformed chunks still fail closed.
-  - Merged result: `451.7 KB resources.arsc`, 72 type config chunks, 4805 populated entries, table strings `1236->1570`, key strings `3806->3934`.
-  - `config.mdpi.apk` required 161 used key-name remaps and 201 global string-pool remaps.
-  - `config.en.apk` required 143 used key-name remaps and 269 global string-pool remaps.
+  - Merged result: `1.9 MB resources.arsc`, 186 type config chunks, 23,177 populated entries, table strings `3447->10409`, key strings `10768->11334`.
+  - Android SDK `aapt2 dump resources` parses the merged resource table with no warnings.
 - `npm run verify:fixture` asserts the package layout, package name, manifest/DEX presence, generated signature files, stale signature removal, native library compression/alignment, split manifest cleanup, parsable merged `resources.arsc`, expanded string-pool sizes, merged populated-entry count, and that no unsupported scope remains for this fixture.
 
 ### Current limitations
 
 The web prototype is not yet feature-equivalent with the Android app:
 
-- It now performs a guarded single-package `resources.arsc` merge for the tested REON and LibreLinkUp XAPK shapes, including sparse and compact offset type chunks plus complex map entries. More complex tables, styled string pools, multi-package resource tables, or type IDs absent from the base type string pool still fall back to an unsupported report.
+- It now performs a guarded single-package `resources.arsc` merge for the tested XAPK shapes, including styled string-span preservation and remapping, sparse and compact offset type chunks, and complex map entries. Multi-package resource tables and type IDs absent from the base type string pool still fall back to an unsupported report.
 - It now removes known split attributes, Play split meta-data elements, and `uses-split` manifest elements, but this is not yet a general-purpose binary manifest merger.
 - It emits client-side JAR/v1 signature files by default and has experimental APK Signature Scheme v2, minimal v3.0, and v4 sidecar paths. The JAR/v1 fallback verifies with bundled Java apksig for Android 4.4-6.0. The v2 path verifies with the browser-side verifier, tamper-negative fixture checks, a guard that rejects stale v3/v3.1/source-stamp pairs, the bundled Java apksig verifier for Android 7.0+, corpus-level `apksigner` checks, and Android SDK `apksigner` from local build-tools 36.0.0. The v3 path verifies with the browser-side verifier, bundled Java apksig for Android 9.0+, and corpus-level `apksigner` checks. The v4 path generates a separate `.idsig` and verifies with the browser-side verifier and bundled Java apksig.
 - The JAR/v1 signing path uses an embedded debug key converted from the Android app's existing `testkey.pk8`; it is suitable for generated test/debug APKs, not for preserving an app's original signing identity.
 - It cannot select installed apps from an Android device or launch Android installation intents, because those are platform-only Android features.
 
-The current environment check finds Java/Javac available, Android command-line tools under `/opt/homebrew/share/android-commandlinetools`, and Android SDK `apksigner` from build-tools 36.0.0. The next milestone is broad APK corpus testing against additional XAPK/APKS/APKM samples and corpus-driven resource-table coverage for styled strings, multi-package tables, and unusual type layouts.
+The current environment check finds Java/Javac available, Android command-line tools under `/opt/homebrew/share/android-commandlinetools`, and Android SDK `apksigner` from build-tools 36.0.0. The next milestone is broad APK corpus testing against additional XAPK/APKS/APKM samples and corpus-driven resource-table coverage for multi-package tables and unusual type layouts.
